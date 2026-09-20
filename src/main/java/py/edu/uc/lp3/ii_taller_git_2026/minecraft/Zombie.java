@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.herencia;
+package py.edu.uc.lp3.ii_taller_git_2026.minecraft;
 
 /**
  * Zombie: entidad hostil que puede infectar aldeanos.
@@ -24,7 +24,11 @@ public class Zombie extends EntidadHostil {
         );
     }
 
-    public void infectaAldeano() {
+    public void infectaAldeano(Aldeano aldeano) {
+
+        if (aldeano == null) {
+            throw new IllegalArgumentException("El aldeano no puede ser nulo.");
+        }
 
         if (!estaViva()) {
             throw new IllegalStateException(
@@ -32,8 +36,18 @@ public class Zombie extends EntidadHostil {
             );
         }
 
-        System.out.println(
-                "El zombie infecta a un aldeano cercano."
-        );
+        if (!aldeano.estaViva()) {
+            throw new IllegalStateException(
+                    "No se puede infectar a un aldeano muerto."
+            );
+        }
+
+        if (distanciaA(aldeano) > getRangoDeteccion()) {
+            throw new IllegalStateException(
+                    "El aldeano está fuera del rango de detección."
+            );
+        }
+
+        aldeano.infectar();
     }
 }

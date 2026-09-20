@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.herencia;
+package py.edu.uc.lp3.ii_taller_git_2026.minecraft;
 
 /**
  * Creeper: entidad hostil que explota tras un tiempo de detonación.
@@ -35,6 +35,12 @@ public class Creeper extends EntidadHostil {
         this.tiempoExplosion = tiempoExplosion;
     }
 
+    @Override
+    public void atacar(Entidad objetivo) {
+        super.atacar(objetivo);
+        explotar();
+    }
+
     public void explotar() {
 
         if (!estaViva()) {
@@ -48,6 +54,8 @@ public class Creeper extends EntidadHostil {
                 tiempoExplosion +
                 " segundos!"
         );
+
+        morir();
     }
 
     public int getTiempoExplosion() {

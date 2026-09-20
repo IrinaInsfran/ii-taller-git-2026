@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.herencia;
+package py.edu.uc.lp3.ii_taller_git_2026.minecraft;
 
 /**
  * Esqueleto: entidad hostil que ataca disparando flechas.
@@ -32,8 +32,6 @@ public class Esqueleto extends EntidadHostil {
             );
         }
 
-        System.out.println(
-                "El esqueleto dispara una flecha."
-        );
+        System.out.println("El esqueleto dispara una flecha.");
     }
 }

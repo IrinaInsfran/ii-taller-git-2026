@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.herencia;
+package py.edu.uc.lp3.ii_taller_git_2026.minecraft;
 
 /**
  * Aldeano: entidad pasiva con una profesión que puede comerciar.
@@ -6,6 +6,7 @@ package py.edu.uc.lp3.herencia;
 public class Aldeano extends EntidadPasiva {
 
     private final String profesion;
+    private boolean infectado;
 
     public Aldeano(int salud,
                    double posicionX,
@@ -31,6 +32,7 @@ public class Aldeano extends EntidadPasiva {
         }
 
         this.profesion = profesion;
+        this.infectado = false;
     }
 
     public void comercio() {
@@ -41,11 +43,36 @@ public class Aldeano extends EntidadPasiva {
             );
         }
 
+        if (infectado) {
+            throw new IllegalStateException(
+                    "Un aldeano infectado no puede comerciar."
+            );
+        }
+
         System.out.println(
                 "El aldeano (" +
                 profesion +
                 ") ofrece comerciar."
         );
+    }
+
+    /**
+     * Cambio de estado controlado desde el dominio.
+     * Package-private para que lo use Zombie sin exponer un setter público.
+     */
+    void infectar() {
+
+        if (!estaViva()) {
+            throw new IllegalStateException(
+                    "Un aldeano muerto no puede ser infectado."
+            );
+        }
+
+        infectado = true;
+    }
+
+    public boolean isInfectado() {
+        return infectado;
     }
 
     public String getProfesion() {

@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.herencia;
+package py.edu.uc.lp3.ii_taller_git_2026.minecraft;
 
 /**
  * Representa al jugador, que puede construir,
@@ -49,10 +49,7 @@ public class Jugador extends Entidad {
             );
         }
 
-        System.out.println(
-                nombre +
-                " está construyendo una estructura."
-        );
+        System.out.println(nombre + " está construyendo una estructura.");
     }
 
     public void craftear() {
@@ -63,10 +60,7 @@ public class Jugador extends Entidad {
             );
         }
 
-        System.out.println(
-                nombre +
-                " está crafteando un objeto."
-        );
+        System.out.println(nombre + " está crafteando un objeto.");
     }
 
     public void interactuar() {
@@ -77,10 +71,7 @@ public class Jugador extends Entidad {
             );
         }
 
-        System.out.println(
-                nombre +
-                " interactúa con el mundo."
-        );
+        System.out.println(nombre + " interactúa con el mundo.");
     }
 
     public void ganarExperiencia(int cantidad) {

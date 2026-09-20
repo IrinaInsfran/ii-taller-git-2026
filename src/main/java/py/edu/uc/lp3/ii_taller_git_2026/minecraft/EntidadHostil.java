@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.herencia;
+package py.edu.uc.lp3.ii_taller_git_2026.minecraft;
 
 /**
  * Entidad hostil: ataca al jugador u otras entidades.
@@ -16,13 +16,7 @@ public class EntidadHostil extends Entidad {
                          double rangoDeteccion,
                          int danoAtaque) {
 
-        super(
-                salud,
-                posicionX,
-                posicionY,
-                posicionZ,
-                velocidad
-        );
+        super(salud, posicionX, posicionY, posicionZ, velocidad);
 
         if (!Double.isFinite(rangoDeteccion) || rangoDeteccion < 0) {
             throw new IllegalArgumentException(
@@ -43,15 +37,11 @@ public class EntidadHostil extends Entidad {
     public void atacar(Entidad objetivo) {
 
         if (objetivo == null) {
-            throw new IllegalArgumentException(
-                    "El objetivo no puede ser nulo."
-            );
+            throw new IllegalArgumentException("El objetivo no puede ser nulo.");
         }
 
         if (!estaViva()) {
-            throw new IllegalStateException(
-                    "Una entidad muerta no puede atacar."
-            );
+            throw new IllegalStateException("Una entidad muerta no puede atacar.");
         }
 
         if (!objetivo.estaViva()) {
@@ -60,11 +50,11 @@ public class EntidadHostil extends Entidad {
             );
         }
 
-        System.out.println(
-                "Atacando a la entidad con " +
-                danoAtaque +
-                " de daño."
-        );
+        if (distanciaA(objetivo) > rangoDeteccion) {
+            throw new IllegalStateException(
+                    "El objetivo está fuera del rango de detección."
+            );
+        }
 
         objetivo.recibirDano(danoAtaque);
     }
