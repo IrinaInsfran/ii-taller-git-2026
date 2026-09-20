@@ -1,43 +1,79 @@
-package py.edu.uc.lp3.ii_taller_git_2026.minecraft;
+package py.edu.uc.lp3.herencia;
 
 /**
- * Entidad hostil: ataca al jugador u otras entidades que estén dentro de su rango de detección.
+ * Entidad hostil: ataca al jugador u otras entidades.
  */
-public abstract class EntidadHostil extends Entidad {
+public class EntidadHostil extends Entidad {
 
     private final double rangoDeteccion;
     private final int danoAtaque;
 
-    protected EntidadHostil(int salud, double posicionX, double posicionY, double posicionZ,
-                            int velocidad, double rangoDeteccion, int danoAtaque) {
-        super(salud, posicionX, posicionY, posicionZ, velocidad);
-        if (rangoDeteccion <= 0) throw new IllegalArgumentException("el rango de detección debe ser mayor a 0");
-        if (danoAtaque < 0) throw new IllegalArgumentException("el daño de ataque no puede ser negativo");
+    public EntidadHostil(int salud,
+                         double posicionX,
+                         double posicionY,
+                         double posicionZ,
+                         int velocidad,
+                         double rangoDeteccion,
+                         int danoAtaque) {
+
+        super(
+                salud,
+                posicionX,
+                posicionY,
+                posicionZ,
+                velocidad
+        );
+
+        if (!Double.isFinite(rangoDeteccion) || rangoDeteccion < 0) {
+            throw new IllegalArgumentException(
+                    "El rango de detección no puede ser negativo."
+            );
+        }
+
+        if (danoAtaque <= 0) {
+            throw new IllegalArgumentException(
+                    "El daño de ataque debe ser mayor que cero."
+            );
+        }
+
         this.rangoDeteccion = rangoDeteccion;
         this.danoAtaque = danoAtaque;
     }
 
-    public boolean detecta(Entidad objetivo) {
-        return objetivo != null && objetivo.estaViva() && distanciaA(objetivo) <= rangoDeteccion;
-    }
+    public void atacar(Entidad objetivo) {
 
-    public String atacar(Entidad objetivo) {
-        exigirViva();
-        if (objetivo == null) throw new IllegalArgumentException("el objetivo es requerido");
-        if (objetivo == this) throw new IllegalArgumentException(getTipo() + " no puede atacarse a sí misma");
-        if (!objetivo.estaViva()) throw new IllegalStateException(objetivo.getTipo() + " ya no tiene salud");
-        if (!detecta(objetivo)) {
-            throw new IllegalStateException(objetivo.getTipo() + " está fuera del rango de detección de " + getTipo());
+        if (objetivo == null) {
+            throw new IllegalArgumentException(
+                    "El objetivo no puede ser nulo."
+            );
         }
-        return getTipo() + " ataca a " + objetivo.getTipo() + " con " + danoAtaque + " de daño. "
-                + objetivo.recibirDano(danoAtaque);
+
+        if (!estaViva()) {
+            throw new IllegalStateException(
+                    "Una entidad muerta no puede atacar."
+            );
+        }
+
+        if (!objetivo.estaViva()) {
+            throw new IllegalStateException(
+                    "No se puede atacar a una entidad que ya está muerta."
+            );
+        }
+
+        System.out.println(
+                "Atacando a la entidad con " +
+                danoAtaque +
+                " de daño."
+        );
+
+        objetivo.recibirDano(danoAtaque);
     }
 
-    public double getRangoDeteccion() { return rangoDeteccion; }
-    public int getDanoAtaque() { return danoAtaque; }
+    public double getRangoDeteccion() {
+        return rangoDeteccion;
+    }
 
-    @Override
-    public String detalle() {
-        return "rango " + rangoDeteccion + ", daño " + danoAtaque;
+    public int getDanoAtaque() {
+        return danoAtaque;
     }
 }
