@@ -92,4 +92,8 @@ public class Jugador extends Entidad {
     public int getNivelEXP() {
         return nivelEXP;
     }
+    @Override
+    public String describirComportamiento() {
+    	return "Construye, craftea e interactúa con el mundo.";
+}
 }

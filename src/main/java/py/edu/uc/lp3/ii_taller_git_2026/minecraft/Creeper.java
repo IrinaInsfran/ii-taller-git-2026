@@ -61,4 +61,8 @@ public class Creeper extends EntidadHostil {
     public int getTiempoExplosion() {
         return tiempoExplosion;
     }
+    @Override
+    public String describirComportamiento() {
+    	return "Se aproxima a su objetivo y explota después de su tiempo de detonación.";
+}
 }

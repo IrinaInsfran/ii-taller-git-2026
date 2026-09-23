@@ -66,4 +66,8 @@ public class EntidadHostil extends Entidad {
     public int getDanoAtaque() {
         return danoAtaque;
     }
+    @Override
+    public String describirComportamiento() {
+    	return "Detecta objetivos dentro de su rango y puede atacarlos.";
+}
 }

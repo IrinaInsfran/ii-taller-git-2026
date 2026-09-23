@@ -3,7 +3,7 @@ package py.edu.uc.lp3.ii_taller_git_2026.minecraft;
 /**
  * Clase base que representa cualquier entidad del mundo del juego.
  */
-public class Entidad {
+public abstract class Entidad {
 
     private int salud;
     private final int saludMaxima;
@@ -156,4 +156,5 @@ public class Entidad {
     public int getVelocidad() {
         return velocidad;
     }
+    public abstract String describirComportamiento();
 }

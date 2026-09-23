@@ -51,4 +51,8 @@ public class EntidadPasiva extends Entidad {
     public boolean isDomesticable() {
         return domesticable;
     }
+    @Override
+    public String describirComportamiento() {
+    	return "Evita amenazas y puede huir cuando se encuentra en peligro.";
+}
 }

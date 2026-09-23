@@ -78,4 +78,8 @@ public class Aldeano extends EntidadPasiva {
     public String getProfesion() {
         return profesion;
     }
+    @Override
+    public String describirComportamiento() {
+    	return "Puede comerciar según su profesión y huir de las amenazas.";
+}
 }
