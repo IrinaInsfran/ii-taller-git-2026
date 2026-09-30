@@ -41,4 +41,13 @@ public class CreeperController {
 		);
 	}
 
+	@GetMapping("/por-posicion")
+	public Creeper crearCreeperPorPosicion(
+			@RequestParam(name = "x") double x,
+			@RequestParam(name = "y") double y,
+			@RequestParam(name = "z") double z) {
+
+		return creeperService.crearPorPosicion(x, y, z);
+	}
+
 }

@@ -24,4 +24,14 @@ public interface CreeperService {
 	              int danoAtaque,
 	              int tiempoExplosion);
 
+	/*
+	 * Funcion para crear un creeper en la posicion indicada usando
+	 * los valores por defecto del constructor sobrecargado
+	 * Parametros:
+	 * 				x, y, z
+	 * Retorno:
+	 * 				Creeper : el creeper creado
+	 * */
+	Creeper crearPorPosicion(double x, double y, double z);
+
 }

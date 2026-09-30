@@ -30,4 +30,9 @@ public class CreeperServiceImpl implements CreeperService {
 		);
 	}
 
+	@Override
+	public Creeper crearPorPosicion(double x, double y, double z) {
+		return new Creeper(x, y, z);
+	}
+
 }
