@@ -138,6 +138,7 @@ classDiagram
         +distanciaA(Entidad otra) double
         +recibirDano(int cantidad)
         +curar(int cantidad)
+        #morir()
         +estaViva() boolean
         +getSalud() int
         +getSaludMaxima() int
@@ -145,7 +146,7 @@ classDiagram
         +getPosicionY() double
         +getPosicionZ() double
         +getVelocidad() int
-        *describirComportamiento() String
+        +describirComportamiento()* String
     }
 
     class EntidadHostil {
@@ -156,7 +157,7 @@ classDiagram
         +atacar(Entidad objetivo)
         +getRangoDeteccion() double
         +getDanoAtaque() int
-        *describirComportamiento() String
+        +describirComportamiento()* String
     }
 
     class EntidadPasiva {
@@ -165,7 +166,7 @@ classDiagram
         +EntidadPasiva(int salud, double posicionX, double posicionY, double posicionZ, int velocidad, boolean domesticable)
         +huir(Entidad amenaza)
         +isDomesticable() boolean
-        *describirComportamiento() String
+        +describirComportamiento()* String
     }
 
     class Jugador {
@@ -208,6 +209,7 @@ classDiagram
         -boolean infectado
         +Aldeano(int salud, double posicionX, double posicionY, double posicionZ, int velocidad, boolean domesticable, String profesion)
         +comercio()
+        ~infectar()
         +isInfectado() boolean
         +getProfesion() String
         +describirComportamiento() String
@@ -225,11 +227,6 @@ classDiagram
     Entidad <|-- EntidadHostil
     Entidad <|-- EntidadPasiva
     Entidad <|-- Jugador
-    Entidad <|-- Creeper
-    Entidad <|-- Zombie
-    Entidad <|-- Esqueleto
-    Entidad <|-- Aldeano
-    Entidad <|-- Animal
 
     EntidadHostil <|-- Creeper
     EntidadHostil <|-- Zombie
