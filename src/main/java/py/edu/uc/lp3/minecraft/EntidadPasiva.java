@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.domain;
+package py.edu.uc.lp3.minecraft;
 
 /**
  * Representa una entidad pasiva que no ataca y puede huir de amenazas.

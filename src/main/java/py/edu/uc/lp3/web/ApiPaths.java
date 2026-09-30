@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.constants;
+package py.edu.uc.lp3.web;
 
 // Clase estática que centraliza todas las constantes
 // que utilizaremos como parte de la API REST

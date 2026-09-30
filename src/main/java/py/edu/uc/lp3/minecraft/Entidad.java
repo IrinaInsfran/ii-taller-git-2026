@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.domain;
+package py.edu.uc.lp3.minecraft;
 
 /**
  * Clase base que representa cualquier entidad del mundo del juego.

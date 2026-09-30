@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.domain;
+package py.edu.uc.lp3.minecraft;
 
 /**
  * Esqueleto: entidad hostil que ataca disparando flechas.

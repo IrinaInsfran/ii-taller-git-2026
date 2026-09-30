@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.domain;
+package py.edu.uc.lp3.minecraft;
 
 /**
  * Representa al jugador, que puede construir,

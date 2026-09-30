@@ -2,7 +2,7 @@ package py.edu.uc.lp3.service.impl;
 
 import org.springframework.stereotype.Service;
 
-import py.edu.uc.lp3.domain.Creeper;
+import py.edu.uc.lp3.minecraft.Creeper;
 import py.edu.uc.lp3.service.CreeperService;
 
 @Service

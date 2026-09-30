@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.domain;
+package py.edu.uc.lp3.minecraft;
 
 import org.junit.jupiter.api.Test;
 
@@ -6,7 +6,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class IrinaTest {
+class EntidadTest {
 
     private Jugador steve() { return new Jugador(20, 0, 64, 0, 5, "Steve", 0); }
     private Zombie zombie() { return new Zombie(20, 5, 64, 0, 3, 16, 3); }

@@ -5,9 +5,9 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import py.edu.uc.lp3.domain.Aldeano;
-import py.edu.uc.lp3.domain.Creeper;
-import py.edu.uc.lp3.domain.Entidad;
+import py.edu.uc.lp3.minecraft.Aldeano;
+import py.edu.uc.lp3.minecraft.Creeper;
+import py.edu.uc.lp3.minecraft.Entidad;
 import py.edu.uc.lp3.service.ComportamientoService;
 
 @Service

@@ -1,6 +1,6 @@
 package py.edu.uc.lp3.service;
 
-import py.edu.uc.lp3.domain.Creeper;
+import py.edu.uc.lp3.minecraft.Creeper;
 
 /*
  * Servicio que se encarga de construir creepers

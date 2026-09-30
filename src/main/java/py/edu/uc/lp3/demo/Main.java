@@ -1,10 +1,10 @@
-package py.edu.uc.lp3;
+package py.edu.uc.lp3.demo;
 
-import py.edu.uc.lp3.domain.Aldeano;
-import py.edu.uc.lp3.domain.Animal;
-import py.edu.uc.lp3.domain.Creeper;
-import py.edu.uc.lp3.domain.Jugador;
-import py.edu.uc.lp3.domain.Zombie;
+import py.edu.uc.lp3.minecraft.Aldeano;
+import py.edu.uc.lp3.minecraft.Animal;
+import py.edu.uc.lp3.minecraft.Creeper;
+import py.edu.uc.lp3.minecraft.Jugador;
+import py.edu.uc.lp3.minecraft.Zombie;
 
 public class Main {
 
