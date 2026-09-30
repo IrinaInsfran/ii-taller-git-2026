@@ -221,4 +221,55 @@ class EntidadTest {
         assertEquals(3, descripciones.size());
         assertEquals(3, Set.copyOf(descripciones).size());
     }
+
+    @Test
+    void moverEnHorizontalNoCambiaLaAltura() {
+        Zombie z = zombie();
+        z.mover(1, -2);
+        assertEquals(6, z.getPosicionX());
+        assertEquals(64, z.getPosicionY());
+        assertEquals(-2, z.getPosicionZ());
+    }
+
+    @Test
+    void moverEnHorizontalRespetaLaVelocidad() {
+        Zombie z = zombie();
+        assertThrows(IllegalArgumentException.class, () -> z.mover(4, 0));
+        assertEquals(5, z.getPosicionX());
+    }
+
+    @Test
+    void elConstructorSobrecargadoDeCreeperUsaLosValoresPorDefecto() {
+        Creeper c = new Creeper(10, 64, -5);
+        assertEquals(20, c.getSalud());
+        assertEquals(20, c.getSaludMaxima());
+        assertEquals(1, c.getVelocidad());
+        assertEquals(16, c.getRangoDeteccion());
+        assertEquals(3, c.getDanoAtaque());
+        assertEquals(30, c.getTiempoExplosion());
+        assertEquals(10, c.getPosicionX());
+        assertEquals(64, c.getPosicionY());
+        assertEquals(-5, c.getPosicionZ());
+        assertTrue(c.estaViva());
+    }
+
+    @Test
+    void ambasFirmasDeCreeperDejanUnCreeperValido() {
+        Creeper porDefecto = new Creeper(0, 64, 0);
+        Creeper completo = creeper();
+        for (Creeper c : List.of(porDefecto, completo)) {
+            assertTrue(c.estaViva());
+            assertEquals(c.getSaludMaxima(), c.getSalud());
+            assertTrue(c.getVelocidad() >= 0);
+            assertTrue(c.getRangoDeteccion() > 0);
+            assertTrue(c.getDanoAtaque() > 0);
+            assertTrue(c.getTiempoExplosion() > 0);
+        }
+    }
+
+    @Test
+    void elConstructorSobrecargadoTambienValidaLaPosicion() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Creeper(Double.NaN, 64, 0));
+    }
 }
