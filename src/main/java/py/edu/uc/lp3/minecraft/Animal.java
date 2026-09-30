@@ -66,4 +66,9 @@ public class Animal extends EntidadPasiva {
     public boolean isMontar() {
         return montable;
     }
+
+    @Override
+    public String describirComportamiento() {
+        return "Huye del peligro y puede ser montado por el jugador.";
+    }
 }

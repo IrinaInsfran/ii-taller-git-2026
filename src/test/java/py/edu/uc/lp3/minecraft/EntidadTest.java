@@ -3,6 +3,7 @@ package py.edu.uc.lp3.minecraft;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -195,5 +196,29 @@ class EntidadTest {
         z.recibirDano(Integer.MAX_VALUE);
         assertEquals(0, z.getSalud());
         assertFalse(z.estaViva());
+    }
+
+    @Test
+    void cadaClaseConcretaDescribeSuPropioComportamiento() {
+        List<String> descripciones = List.of(
+                steve().describirComportamiento(),
+                zombie().describirComportamiento(),
+                new Esqueleto(20, 30, 64, 0, 3, 10, 4).describirComportamiento(),
+                creeper().describirComportamiento(),
+                aldeano().describirComportamiento(),
+                new Animal(10, 12, 64, 0, 2, true, true).describirComportamiento()
+        );
+        assertEquals(descripciones.size(), Set.copyOf(descripciones).size());
+        descripciones.forEach(d -> assertFalse(d.isBlank()));
+    }
+
+    @Test
+    void elComportamientoSeObtieneSinPreguntarPorElTipo() {
+        List<Entidad> mundo = List.of(creeper(), aldeano(), zombie());
+        List<String> descripciones = mundo.stream()
+                .map(Entidad::describirComportamiento)
+                .toList();
+        assertEquals(3, descripciones.size());
+        assertEquals(3, Set.copyOf(descripciones).size());
     }
 }

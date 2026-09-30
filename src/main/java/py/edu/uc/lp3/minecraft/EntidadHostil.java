@@ -2,8 +2,11 @@ package py.edu.uc.lp3.minecraft;
 
 /**
  * Entidad hostil: ataca al jugador u otras entidades.
+ * <p>
+ * Es abstracta: un "hostil generico" no describe un comportamiento concreto
+ * del juego, asi que cada subclase debe decir como se comporta.
  */
-public class EntidadHostil extends Entidad {
+public abstract class EntidadHostil extends Entidad {
 
     private final double rangoDeteccion;
     private final int danoAtaque;
@@ -66,8 +69,7 @@ public class EntidadHostil extends Entidad {
     public int getDanoAtaque() {
         return danoAtaque;
     }
+
     @Override
-    public String describirComportamiento() {
-    	return "Detecta objetivos dentro de su rango y puede atacarlos.";
-}
+    public abstract String describirComportamiento();
 }

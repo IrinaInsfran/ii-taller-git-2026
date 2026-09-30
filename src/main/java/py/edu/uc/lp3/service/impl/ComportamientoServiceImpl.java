@@ -8,39 +8,28 @@ import org.springframework.stereotype.Service;
 import py.edu.uc.lp3.minecraft.Aldeano;
 import py.edu.uc.lp3.minecraft.Creeper;
 import py.edu.uc.lp3.minecraft.Entidad;
+import py.edu.uc.lp3.minecraft.Zombie;
 import py.edu.uc.lp3.service.ComportamientoService;
 
 @Service
 public class ComportamientoServiceImpl implements ComportamientoService {
 
+	/**
+	 * Mundo de ejemplo. Todas las entidades se guardan como Entidad: el
+	 * servicio no necesita saber el tipo concreto de cada una, solo
+	 * invocar el comportamiento polimorfico de Entidad.
+	 */
+	private final List<Entidad> mundo = List.of(
+			new Creeper(20, 6, 64, 0, 2, 16, 3, 30),
+			new Aldeano(20, 10, 64, 0, 2, false, "Herrero"),
+			new Zombie(20, 5, 64, 0, 3, 16, 3)
+	);
+
 	@Override
 	public List<Map<String, String>> obtenerComportamientos() {
-
-		Entidad creeper = new Creeper(
-				20,
-				6,
-				64,
-				0,
-				2,
-				16,
-				3,
-				30
-		);
-
-		Entidad aldeano = new Aldeano(
-				20,
-				10,
-				64,
-				0,
-				2,
-				false,
-				"Herrero"
-		);
-
-		return List.of(
-				describir(creeper),
-				describir(aldeano)
-		);
+		return mundo.stream()
+				.map(this::describir)
+				.toList();
 	}
 
 	private Map<String, String> describir(Entidad entidad) {

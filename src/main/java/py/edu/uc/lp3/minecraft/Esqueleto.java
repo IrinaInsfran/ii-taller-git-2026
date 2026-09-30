@@ -34,4 +34,9 @@ public class Esqueleto extends EntidadHostil {
 
         System.out.println("El esqueleto dispara una flecha.");
     }
+
+    @Override
+    public String describirComportamiento() {
+        return "Mantiene la distancia y dispara flechas para dañar a su objetivo.";
+    }
 }

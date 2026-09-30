@@ -50,4 +50,9 @@ public class Zombie extends EntidadHostil {
 
         aldeano.infectar();
     }
+
+    @Override
+    public String describirComportamiento() {
+        return "Persigue al jugador dentro de su rango e infecta a los aldeanos.";
+    }
 }
