@@ -121,7 +121,14 @@ public abstract class Entidad {
             );
         }
 
-        salud = Math.min(saludMaxima, salud + cantidad);
+        // Comparar contra el faltante evita sumar: salud + cantidad puede
+        // desbordar int y dejar la salud en negativo, violando el
+        // invariante 0 <= salud <= saludMaxima.
+        int faltante = saludMaxima - salud;
+
+        salud = (cantidad >= faltante)
+                ? saludMaxima
+                : salud + cantidad;
     }
 
     protected void morir() {

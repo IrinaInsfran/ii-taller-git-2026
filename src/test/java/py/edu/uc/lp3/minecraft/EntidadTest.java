@@ -114,4 +114,86 @@ class EntidadTest {
         mundo.forEach(e -> e.recibirDano(5));
         mundo.forEach(e -> assertEquals(e.getSaludMaxima() - 5, e.getSalud()));
     }
+
+    @Test
+    void curarConElMaximoDeIntNoDesbordaNiDejaSaludNegativa() {
+        Jugador j = steve();
+        j.recibirDano(5);
+        j.curar(Integer.MAX_VALUE);
+        assertEquals(j.getSaludMaxima(), j.getSalud());
+        assertTrue(j.getSalud() >= 0);
+    }
+
+    @Test
+    void curarConElMaximoDeIntSobreSaludCompletaNoCambiaNada() {
+        Jugador j = steve();
+        j.curar(Integer.MAX_VALUE);
+        assertEquals(20, j.getSalud());
+    }
+
+    @Test
+    void curarConElMaximoDeIntNuncaDejaSaludNegativa() {
+        Aldeano a = aldeano();
+        a.recibirDano(19);
+        assertEquals(1, a.getSalud());
+        a.curar(Integer.MAX_VALUE);
+        assertEquals(a.getSaludMaxima(), a.getSalud());
+        assertTrue(a.getSalud() >= 0);
+        assertTrue(a.estaViva());
+    }
+
+    @Test
+    void ganarExperienciaConDesbordamientoFallaYNoPierdeElNivel() {
+        Jugador j = steve();
+        j.ganarExperiencia(Integer.MAX_VALUE);
+        assertEquals(Integer.MAX_VALUE, j.getNivelEXP());
+        assertThrows(IllegalArgumentException.class,
+                () -> j.ganarExperiencia(1));
+        assertEquals(Integer.MAX_VALUE, j.getNivelEXP());
+    }
+
+    @Test
+    void velocidadCeroEsValidaPeroImpideHuir() {
+        Aldeano quieto = new Aldeano(20, 0, 64, 0, 0, false, "Pescador");
+        assertEquals(0, quieto.getVelocidad());
+        assertThrows(IllegalStateException.class, () -> quieto.huir(zombie()));
+        quieto.mover(0, 0, 0);
+        assertEquals(0, quieto.getPosicionX());
+    }
+
+    @Test
+    void posicionesNoFinitasSeRechazanEnElConstructor() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Zombie(20, Double.NaN, 64, 0, 3, 16, 3));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Zombie(20, 0, Double.POSITIVE_INFINITY, 0, 3, 16, 3));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Zombie(20, 0, 64, Double.NEGATIVE_INFINITY, 3, 16, 3));
+    }
+
+    @Test
+    void desplazamientoNoFinitoSeRechaza() {
+        Zombie z = zombie();
+        assertThrows(IllegalArgumentException.class,
+                () -> z.mover(Double.NaN, 0, 0));
+        assertEquals(5, z.getPosicionX());
+    }
+
+    @Test
+    void rangoDeteccionNoFinitoSeRechaza() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Zombie(20, 0, 64, 0, 3, Double.NaN, 3));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Zombie(20, 0, 64, 0, 3, Double.POSITIVE_INFINITY, 3));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Zombie(20, 0, 64, 0, 3, -1, 3));
+    }
+
+    @Test
+    void dañoMaximoDeIntNoDejaSaludNegativa() {
+        Zombie z = zombie();
+        z.recibirDano(Integer.MAX_VALUE);
+        assertEquals(0, z.getSalud());
+        assertFalse(z.estaViva());
+    }
 }

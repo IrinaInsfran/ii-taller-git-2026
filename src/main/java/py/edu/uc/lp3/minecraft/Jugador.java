@@ -74,6 +74,19 @@ public class Jugador extends Entidad {
         System.out.println(nombre + " interactúa con el mundo.");
     }
 
+    /**
+     * Suma experiencia al jugador.
+     * <p>
+     * Se usa {@link Math#addExact(int, int)} para detectar el
+     * desbordamiento: si {@code nivelEXP + cantidad} supera
+     * {@link Integer#MAX_VALUE} se lanza {@link IllegalArgumentException}
+     * en lugar de dar la vuelta y dejar el nivel en negativo. El nivel
+     * nunca se satura, porque un nivel negativo seria peor que un error.
+     *
+     * @param cantidad experiencia ganada, mayor que cero
+     * @throws IllegalArgumentException si la cantidad no es positiva o
+     *                                  la suma desborda el rango de int
+     */
     public void ganarExperiencia(int cantidad) {
 
         if (cantidad <= 0) {
@@ -82,7 +95,13 @@ public class Jugador extends Entidad {
             );
         }
 
-        nivelEXP += cantidad;
+        try {
+            nivelEXP = Math.addExact(nivelEXP, cantidad);
+        } catch (ArithmeticException overflow) {
+            throw new IllegalArgumentException(
+                    "La experiencia total supera el máximo permitido."
+            );
+        }
     }
 
     public String getNombre() {
