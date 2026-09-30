@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.ii_taller_git_2026.minecraft;
+package py.edu.uc.lp3.domain;
 
 /**
  * Entidad hostil: ataca al jugador u otras entidades.

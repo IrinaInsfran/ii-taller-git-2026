@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.ii_taller_git_2026.minecraft;
+package py.edu.uc.lp3.domain;
 
 /**
  * Zombie: entidad hostil que puede infectar aldeanos.

@@ -1,54 +1,28 @@
-package py.edu.uc.lp3.ii_taller_git_2026.minecraft.controller;
+package py.edu.uc.lp3.rest.controller;
+
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import py.edu.uc.lp3.ii_taller_git_2026.minecraft.Aldeano;
-import py.edu.uc.lp3.ii_taller_git_2026.minecraft.Creeper;
-import py.edu.uc.lp3.ii_taller_git_2026.minecraft.Entidad;
-
-import java.util.List;
-import java.util.Map;
+import py.edu.uc.lp3.constants.ApiPaths;
+import py.edu.uc.lp3.service.ComportamientoService;
 
 @RestController
-@RequestMapping("/api/minecraft")
+@RequestMapping(ApiPaths.COMPORTAMIENTOS)
 public class ComportamientoController {
 
-    @GetMapping("/comportamientos")
-    public List<Map<String, String>> comportamientos() {
+	private final ComportamientoService comportamientoService;
 
-        Entidad creeper = new Creeper(
-                20,
-                6,
-                64,
-                0,
-                2,
-                16,
-                3,
-                30
-        );
+	public ComportamientoController(ComportamientoService comportamientoService) {
+		this.comportamientoService = comportamientoService;
+	}
 
-        Entidad aldeano = new Aldeano(
-                20,
-                10,
-                64,
-                0,
-                2,
-                false,
-                "Herrero"
-        );
+	@GetMapping
+	public List<Map<String, String>> comportamientos() {
+		return comportamientoService.obtenerComportamientos();
+	}
 
-        return List.of(
-                describir(creeper),
-                describir(aldeano)
-        );
-    }
-
-    private Map<String, String> describir(Entidad entidad) {
-        return Map.of(
-                "tipo", entidad.getClass().getSimpleName(),
-                "comportamiento", entidad.describirComportamiento()
-        );
-    }
 }

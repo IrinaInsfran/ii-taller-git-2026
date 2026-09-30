@@ -1,4 +1,10 @@
-package py.edu.uc.lp3.ii_taller_git_2026.minecraft;
+package py.edu.uc.lp3;
+
+import py.edu.uc.lp3.domain.Aldeano;
+import py.edu.uc.lp3.domain.Animal;
+import py.edu.uc.lp3.domain.Creeper;
+import py.edu.uc.lp3.domain.Jugador;
+import py.edu.uc.lp3.domain.Zombie;
 
 public class Main {
 

@@ -1,36 +1,45 @@
-package py.edu.uc.lp3.ii_taller_git_2026.minecraft.controller;
+package py.edu.uc.lp3.rest.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import py.edu.uc.lp3.ii_taller_git_2026.minecraft.Creeper;
+import py.edu.uc.lp3.constants.ApiPaths;
+import py.edu.uc.lp3.domain.Creeper;
+import py.edu.uc.lp3.service.CreeperService;
 
 @RestController
-@RequestMapping("/api/minecraft")
+@RequestMapping(ApiPaths.CREEPER)
 public class CreeperController {
 
-    @GetMapping("/creeper")
-    public Creeper crearCreeper(
-            @RequestParam(name = "salud") int salud,
-            @RequestParam(name = "x") double x,
-            @RequestParam(name = "y") double y,
-            @RequestParam(name = "z") double z,
-            @RequestParam(name = "velocidad") int velocidad,
-            @RequestParam(name = "rangoDeteccion") double rangoDeteccion,
-            @RequestParam(name = "danoAtaque") int danoAtaque,
-            @RequestParam(name = "tiempoExplosion") int tiempoExplosion) {
+	private final CreeperService creeperService;
 
-        return new Creeper(
-                salud,
-                x,
-                y,
-                z,
-                velocidad,
-                rangoDeteccion,
-                danoAtaque,
-                tiempoExplosion
-        );
-    }
+	public CreeperController(CreeperService creeperService) {
+		this.creeperService = creeperService;
+	}
+
+	@GetMapping
+	public Creeper crearCreeper(
+			@RequestParam(name = "salud") int salud,
+			@RequestParam(name = "x") double x,
+			@RequestParam(name = "y") double y,
+			@RequestParam(name = "z") double z,
+			@RequestParam(name = "velocidad") int velocidad,
+			@RequestParam(name = "rangoDeteccion") double rangoDeteccion,
+			@RequestParam(name = "danoAtaque") int danoAtaque,
+			@RequestParam(name = "tiempoExplosion") int tiempoExplosion) {
+
+		return creeperService.crear(
+				salud,
+				x,
+				y,
+				z,
+				velocidad,
+				rangoDeteccion,
+				danoAtaque,
+				tiempoExplosion
+		);
+	}
+
 }

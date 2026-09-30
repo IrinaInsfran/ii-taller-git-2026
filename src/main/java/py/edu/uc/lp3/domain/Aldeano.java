@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.ii_taller_git_2026.minecraft;
+package py.edu.uc.lp3.domain;
 
 /**
  * Aldeano: entidad pasiva con una profesión que puede comerciar.
