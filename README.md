@@ -5,6 +5,8 @@
 - **Materia:** Lenguaje de Programacion 3
 - **Seccion:** F
 - **Licencia:** [Apache License 2.0](LICENSE)
+- **Commit de la solución:** _pendiente: se completa con el enlace al commit del merge a `main`_
+- **Bitácora de uso de IA:** [BITACORA.md](BITACORA.md)
 
 API REST en Spring Boot 4 / Java 21 sobre el dominio de Minecraft (POO).
 El dominio no depende de Spring: vive en `py.edu.uc.lp3.minecraft` y la capa web
