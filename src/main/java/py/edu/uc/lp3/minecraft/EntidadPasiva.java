@@ -1,9 +1,12 @@
-package py.edu.uc.lp3.ii_taller_git_2026.minecraft;
+package py.edu.uc.lp3.minecraft;
 
 /**
  * Representa una entidad pasiva que no ataca y puede huir de amenazas.
+ * <p>
+ * Es abstracta: una "pasiva generica" no describe un comportamiento concreto
+ * del juego, asi que cada subclase debe decir como se comporta.
  */
-public class EntidadPasiva extends Entidad {
+public abstract class EntidadPasiva extends Entidad {
 
     private final boolean domesticable;
 
@@ -51,8 +54,7 @@ public class EntidadPasiva extends Entidad {
     public boolean isDomesticable() {
         return domesticable;
     }
+
     @Override
-    public String describirComportamiento() {
-    	return "Evita amenazas y puede huir cuando se encuentra en peligro.";
-}
+    public abstract String describirComportamiento();
 }

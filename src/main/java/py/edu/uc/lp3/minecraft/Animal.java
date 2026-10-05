@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.ii_taller_git_2026.minecraft;
+package py.edu.uc.lp3.minecraft;
 
 /**
  * Animal: entidad pasiva que puede ser montable.
@@ -65,5 +65,10 @@ public class Animal extends EntidadPasiva {
     // Se conserva por compatibilidad con el nombre usado anteriormente.
     public boolean isMontar() {
         return montable;
+    }
+
+    @Override
+    public String describirComportamiento() {
+        return "Huye del peligro y puede ser montado por el jugador.";
     }
 }

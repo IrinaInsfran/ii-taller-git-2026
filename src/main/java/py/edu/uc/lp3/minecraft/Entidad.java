@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.ii_taller_git_2026.minecraft;
+package py.edu.uc.lp3.minecraft;
 
 /**
  * Clase base que representa cualquier entidad del mundo del juego.
@@ -38,13 +38,12 @@ public abstract class Entidad {
     }
 
     /**
-     * Mantiene compatibilidad con el comportamiento original.
+     * Desplaza la entidad en el plano horizontal (dx, dz), sin cambiar su
+     * altura. Es una sobrecarga util porque moverse en Minecraft casi nunca
+     * cambia la coordenada Y.
      */
-    public void mover() {
-        if (!estaViva()) {
-            throw new IllegalStateException("Una entidad muerta no puede moverse.");
-        }
-        System.out.println("La entidad se mueve.");
+    public void mover(double dx, double dz) {
+        mover(dx, 0, dz);
     }
 
     /**
@@ -121,7 +120,14 @@ public abstract class Entidad {
             );
         }
 
-        salud = Math.min(saludMaxima, salud + cantidad);
+        // Comparar contra el faltante evita sumar: salud + cantidad puede
+        // desbordar int y dejar la salud en negativo, violando el
+        // invariante 0 <= salud <= saludMaxima.
+        int faltante = saludMaxima - salud;
+
+        salud = (cantidad >= faltante)
+                ? saludMaxima
+                : salud + cantidad;
     }
 
     protected void morir() {

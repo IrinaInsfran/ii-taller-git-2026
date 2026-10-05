@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.ii_taller_git_2026.minecraft;
+package py.edu.uc.lp3.minecraft;
 
 /**
  * Zombie: entidad hostil que puede infectar aldeanos.
@@ -49,5 +49,10 @@ public class Zombie extends EntidadHostil {
         }
 
         aldeano.infectar();
+    }
+
+    @Override
+    public String describirComportamiento() {
+        return "Persigue al jugador dentro de su rango e infecta a los aldeanos.";
     }
 }
