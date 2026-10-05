@@ -11,7 +11,7 @@ autora; el asistente se usó como revisor y redactor de apoyo.
 
 | Fecha | Asistente (marca) | Modelo de LLM exacto | Para qué |
 |---|---|---|---|
-|2026-09-30 | Claude (Anthropic) | Claude Opus 5.5 (`claude-opus-5-5`)  | Trabajo de la rama `poo-06-mejoras` del 30/09/2026 (refactor de paquetes, invariantes, sobrecarga, errores 400, README). Si no se usó IA, anotar "sin asistente". |
+|2026-09-30 | Claude (Anthropic) | Claude Opus 5.5 (`claude-opus-5-5`)  | Trabajo de la rama `poo-06-mejoras` del 30/09/2026 (refactor de paquetes, invariantes, sobrecarga, errores 400, README)|
 | 2026-10-04 | Claude (Anthropic) | Claude Opus 5.5 (`claude-opus-5-5`) | Revisión de la rama `poo-06-mejoras` contra el enunciado y la rúbrica antes del merge a `main`; redacción de esta bitácora y de la sección del README sobre sobrecarga y sobreescritura. |
 
 ## Resumen de prompts — sesión del 2026-10-04 (Claude Opus 5.5)
