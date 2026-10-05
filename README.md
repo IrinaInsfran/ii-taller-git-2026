@@ -2,11 +2,15 @@
 
 - **Nombre:** Irina Insfrán
 - **GitHub:** [IrinaInsfran](https://github.com/IrinaInsfran)
-- **Comisión:** CYT646 F
+- **Materia:** Lenguaje de Programacion 3
+- **Seccion:** F
+- **Licencia:** [Apache License 2.0](LICENSE)
 
 API REST en Spring Boot 4 / Java 21 sobre el dominio de Minecraft (POO).
 El dominio no depende de Spring: vive en `py.edu.uc.lp3.minecraft` y la capa web
-en `py.edu.uc.lp3.web`.
+en `py.edu.uc.lp3.web`. Los servicios (`service`, `service.impl`) siguen el
+template de la cátedra; el dominio y la capa web llevan los nombres que pide la
+consigna 1 del enunciado POO-06 (`minecraft` separado de `web`).
 
 ## Cómo levantar
 
@@ -235,6 +239,23 @@ classDiagram
     EntidadPasiva <|-- Aldeano
     EntidadPasiva <|-- Animal
 ```
+
+## Sobrecarga y sobreescritura: qué cambió
+
+### Sobrecarga (misma acción, otra lista de argumentos)
+
+| Antes | Ahora | Por qué |
+|---|---|---|
+| `Creeper` tenía un solo constructor de 8 parámetros. | Se suma `Creeper(x, y, z)`, que usa los valores por defecto del juego (salud 20, velocidad 1, rango 16, daño 3, explosión 30) y delega con `this(...)` en el constructor completo. | Crear un creeper "normal" solo con su posición, sin duplicar validaciones: las dos firmas dejan el objeto en un estado legal. Se expone en `GET /api/minecraft/creeper/por-posicion`. |
+| `mover()` sin argumentos solo imprimía un texto y no cambiaba el estado. | Se elimina y se agrega `mover(dx, dz)`, que desplaza en el plano horizontal y delega en `mover(dx, dy, dz)`. | Una sobrecarga tiene que hacer la misma acción con otro contexto, no un mensaje vacío. Las dos firmas respetan el tope de velocidad. |
+
+### Sobreescritura (la clase hija responde a su manera)
+
+| Antes | Ahora | Por qué |
+|---|---|---|
+| `EntidadHostil` y `EntidadPasiva` eran instanciables y devolvían una descripción genérica de `describirComportamiento()`. | Son abstractas y redeclaran `describirComportamiento()` como abstracto; lo implementan con `@Override` `Jugador`, `Creeper`, `Zombie`, `Esqueleto`, `Aldeano` y `Animal`. | No existe un "hostil genérico" en el juego: cada tipo concreto debe saber describirse. |
+| El `ComportamientoController` creaba y describía dos entidades sueltas. | El controller delega en `ComportamientoServiceImpl`, que recorre un `List<Entidad>` (`Creeper`, `Aldeano`, `Zombie`) y llama a `describirComportamiento()` sin `if`, `switch` ni `instanceof`. | La JVM elige la implementación de cada clase hija; agregar una entidad nueva no obliga a tocar el servicio. |
+| — | `Creeper` sobreescribe `atacar(Entidad)`: llama a `super.atacar(objetivo)` y después `explotar()`. | Reutiliza las reglas del ataque hostil (objetivo vivo, dentro del rango) y agrega su propio efecto. |
 
 ## Qué quedó encapsulado
 
