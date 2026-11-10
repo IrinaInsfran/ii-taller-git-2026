@@ -1,0 +1,550 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-11-10T12:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v10.3.0",
+  "resources": [
+    {
+      "_id": "wrk_minecraft_poo08",
+      "_type": "workspace",
+      "parentId": null,
+      "name": "Minecraft POO-08 (Irina Insfrán)",
+      "description": "CRUD de entidades, protocolo Amenaza, simulación de explosiones y excepciones. Ver README.",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_base",
+      "_type": "environment",
+      "parentId": "wrk_minecraft_poo08",
+      "name": "Base Environment",
+      "data": {
+        "baseUrl": "http://localhost:8080",
+        "jugadorId": 1,
+        "creeperId": 2,
+        "creeperLejosId": 5,
+        "vacaId": 6
+      },
+      "isPrivate": false,
+      "metaSortKey": 0
+    },
+    {
+      "_id": "env_local",
+      "_type": "environment",
+      "parentId": "env_base",
+      "name": "Local",
+      "data": {
+        "baseUrl": "http://localhost:8080"
+      },
+      "isPrivate": false,
+      "metaSortKey": 1
+    },
+    {
+      "_id": "fld_0_estado",
+      "_type": "request_group",
+      "parentId": "wrk_minecraft_poo08",
+      "name": "0. Estado",
+      "description": "",
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_0_00",
+      "_type": "request",
+      "parentId": "fld_0_estado",
+      "name": "01 GET /  (la app vive)",
+      "description": "Debe responder 200 con estado 'API funcionando'.",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "fld_1_crud",
+      "_type": "request_group",
+      "parentId": "wrk_minecraft_poo08",
+      "name": "1. CRUD de entidades",
+      "description": "",
+      "metaSortKey": 100
+    },
+    {
+      "_id": "req_1_00",
+      "_type": "request",
+      "parentId": "fld_1_crud",
+      "name": "01 POST Jugador Steve (constructor completo)",
+      "description": "201 + Location. Copiá el id a jugadorId (en una base vacía es 1).",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/minecraft/entidades",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"JUGADOR\",\n  \"salud\": 20,\n  \"posicionX\": 0,\n  \"posicionY\": 64,\n  \"posicionZ\": 0,\n  \"velocidad\": 4,\n  \"nombre\": \"Steve\",\n  \"nivelEXP\": 5\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_1_01",
+      "_type": "request",
+      "parentId": "fld_1_crud",
+      "name": "02 POST Creeper (constructor sobrecargado Creeper(x,y,z))",
+      "description": "Sin estadísticas: usa salud 20, velocidad 1, rango 16, daño 3, mecha 30. Copiá el id a creeperId (2).",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/minecraft/entidades",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"CREEPER\",\n  \"posicionX\": 3,\n  \"posicionY\": 64,\n  \"posicionZ\": 0\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_1_02",
+      "_type": "request",
+      "parentId": "fld_1_crud",
+      "name": "03 POST Aldeano",
+      "description": "Queda a 2 bloques del creeper: la explosión lo va a matar. Id 3.",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/minecraft/entidades",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"ALDEANO\",\n  \"salud\": 20,\n  \"posicionX\": 5,\n  \"posicionY\": 64,\n  \"posicionZ\": 0,\n  \"velocidad\": 2,\n  \"profesion\": \"Herrero\"\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_1_03",
+      "_type": "request",
+      "parentId": "fld_1_crud",
+      "name": "04 POST Zombie (constructor sobrecargado Zombie(x,y,z))",
+      "description": "Fuera del radio de la explosión (7 bloques del creeper). Id 4.",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/minecraft/entidades",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"ZOMBIE\",\n  \"posicionX\": 10,\n  \"posicionY\": 64,\n  \"posicionZ\": 0\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 3
+    },
+    {
+      "_id": "req_1_04",
+      "_type": "request",
+      "parentId": "fld_1_crud",
+      "name": "05 POST Creeper lejos (para FueraDeAlcance)",
+      "description": "A 20 bloques de Steve: no puede encender la mecha. Copiá el id a creeperLejosId (5).",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/minecraft/entidades",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"CREEPER\",\n  \"posicionX\": 20,\n  \"posicionY\": 64,\n  \"posicionZ\": 0\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 4
+    },
+    {
+      "_id": "req_1_05",
+      "_type": "request",
+      "parentId": "fld_1_crud",
+      "name": "06 POST Vaca (para borrar)",
+      "description": "Copiá el id a vacaId (6).",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/minecraft/entidades",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"ANIMAL\",\n  \"salud\": 10,\n  \"posicionX\": 40,\n  \"posicionY\": 64,\n  \"posicionZ\": 0,\n  \"velocidad\": 2,\n  \"montable\": false\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 5
+    },
+    {
+      "_id": "req_1_06",
+      "_type": "request",
+      "parentId": "fld_1_crud",
+      "name": "07 GET lista de entidades",
+      "description": "Lo que está guardado en H2.",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/minecraft/entidades",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 6
+    },
+    {
+      "_id": "req_1_07",
+      "_type": "request",
+      "parentId": "fld_1_crud",
+      "name": "08 GET entidad por id (Steve)",
+      "description": "Coincide con lo creado.",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/minecraft/entidades/{{ _.jugadorId }}",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 7
+    },
+    {
+      "_id": "req_1_08",
+      "_type": "request",
+      "parentId": "fld_1_crud",
+      "name": "09 PUT Steve (reemplaza todo)",
+      "description": "PUT reemplaza el recurso entero: nivelEXP pasa a 30. Repetí el GET por id para ver que persistió.",
+      "method": "PUT",
+      "url": "{{ _.baseUrl }}/api/minecraft/entidades/{{ _.jugadorId }}",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"JUGADOR\",\n  \"salud\": 20,\n  \"posicionX\": 0,\n  \"posicionY\": 64,\n  \"posicionZ\": 0,\n  \"velocidad\": 4,\n  \"nombre\": \"Steve\",\n  \"nivelEXP\": 30\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 8
+    },
+    {
+      "_id": "req_1_09",
+      "_type": "request",
+      "parentId": "fld_1_crud",
+      "name": "10 DELETE vaca",
+      "description": "204 sin cuerpo.",
+      "method": "DELETE",
+      "url": "{{ _.baseUrl }}/api/minecraft/entidades/{{ _.vacaId }}",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 9
+    },
+    {
+      "_id": "req_1_10",
+      "_type": "request",
+      "parentId": "fld_1_crud",
+      "name": "11 GET vaca borrada → 404",
+      "description": "Después del DELETE: 404 entidad_no_encontrada.",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/minecraft/entidades/{{ _.vacaId }}",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 10
+    },
+    {
+      "_id": "req_1_11",
+      "_type": "request",
+      "parentId": "fld_1_crud",
+      "name": "12 POST ilegal (salud negativa) → 400",
+      "description": "Lo rechaza el constructor de Entidad (DatoInvalidoException). Volvé a correr 'GET lista': no creció.",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/minecraft/entidades",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"CREEPER\",\n  \"salud\": -5,\n  \"posicionX\": 0,\n  \"posicionY\": 64,\n  \"posicionZ\": 0,\n  \"velocidad\": 1,\n  \"rangoDeteccion\": 16,\n  \"danoAtaque\": 3,\n  \"tiempoExplosion\": 30\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 11
+    },
+    {
+      "_id": "fld_2_protocolo",
+      "_type": "request_group",
+      "parentId": "wrk_minecraft_poo08",
+      "name": "2. Protocolo Amenaza (interface)",
+      "description": "",
+      "metaSortKey": 200
+    },
+    {
+      "_id": "req_2_00",
+      "_type": "request",
+      "parentId": "fld_2_protocolo",
+      "name": "01 GET amenazas sobre Steve + espada de diamante",
+      "description": "Mezcla dos familias en una List<Amenaza>: mobs hostiles guardados (Creeper, Zombie) y una Espada (Herramienta).",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/minecraft/entidades/{{ _.jugadorId }}/amenazas?arma=ESPADA&material=DIAMANTE",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_2_01",
+      "_type": "request",
+      "parentId": "fld_2_protocolo",
+      "name": "02 GET amenazas sobre Steve (solo mobs)",
+      "description": "Sin arma: solo los mobs hostiles vivos.",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/minecraft/entidades/{{ _.jugadorId }}/amenazas",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1
+    },
+    {
+      "_id": "fld_3_simulacion",
+      "_type": "request_group",
+      "parentId": "wrk_minecraft_poo08",
+      "name": "3. Simulación de explosión",
+      "description": "",
+      "metaSortKey": 300
+    },
+    {
+      "_id": "req_3_00",
+      "_type": "request",
+      "parentId": "fld_3_simulacion",
+      "name": "01 POST explosión (caso feliz)",
+      "description": "Regla 1: Steve está a 3 bloques → el creeper enciende la mecha. Regla 2: Steve recibe 16 (queda en 4), el aldeano 24 (muere), el zombie nada. 201.",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/minecraft/explosiones",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"creeperId\": {{ _.creeperId }}\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_3_01",
+      "_type": "request",
+      "parentId": "fld_3_simulacion",
+      "name": "02 GET Steve después de explotar",
+      "description": "salud 4: el daño quedó guardado.",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/minecraft/entidades/{{ _.jugadorId }}",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_3_02",
+      "_type": "request",
+      "parentId": "fld_3_simulacion",
+      "name": "03 GET lista de entidades después",
+      "description": "El creeper y el aldeano tienen viva=false.",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/minecraft/entidades",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_3_03",
+      "_type": "request",
+      "parentId": "fld_3_simulacion",
+      "name": "04 GET historial de explosiones",
+      "description": "La explosión quedó guardada con sus contadores.",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/minecraft/explosiones",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 3
+    },
+    {
+      "_id": "req_3_04",
+      "_type": "request",
+      "parentId": "fld_3_simulacion",
+      "name": "05 GET explosión por id",
+      "description": "En una base vacía la primera explosión es la 1.",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/minecraft/explosiones/1",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 4
+    },
+    {
+      "_id": "fld_4_errores",
+      "_type": "request_group",
+      "parentId": "wrk_minecraft_poo08",
+      "name": "4. Excepciones (un pedido por tipo)",
+      "description": "",
+      "metaSortKey": 400
+    },
+    {
+      "_id": "req_4_00",
+      "_type": "request",
+      "parentId": "fld_4_errores",
+      "name": "01 DatoInvalidoException → 400",
+      "description": "error=dato_invalido, codigo=dato_invalido.",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/minecraft/entidades",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"JUGADOR\",\n  \"salud\": 0,\n  \"posicionX\": 0,\n  \"posicionY\": 64,\n  \"posicionZ\": 0,\n  \"velocidad\": 4,\n  \"nombre\": \"Herobrine\"\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_4_01",
+      "_type": "request",
+      "parentId": "fld_4_errores",
+      "name": "02 EntidadNoEncontradaException → 404",
+      "description": "error=no_encontrada, codigo=entidad_no_encontrada.",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/minecraft/entidades/999999",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_4_02",
+      "_type": "request",
+      "parentId": "fld_4_errores",
+      "name": "03 ReglaDelJuegoException → 422 (un jugador no explota)",
+      "description": "error=regla_del_juego, codigo=solo_creepers_explotan.",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/minecraft/explosiones",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"creeperId\": {{ _.jugadorId }}\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_4_03",
+      "_type": "request",
+      "parentId": "fld_4_errores",
+      "name": "04 EntidadMuertaException → 409 (el creeper ya explotó)",
+      "description": "Correr después de la simulación. error=entidad_muerta.",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/minecraft/explosiones",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"creeperId\": {{ _.creeperId }}\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 3
+    },
+    {
+      "_id": "req_4_04",
+      "_type": "request",
+      "parentId": "fld_4_errores",
+      "name": "05 FueraDeAlcanceException → 422 (nadie cerca)",
+      "description": "error=fuera_de_alcance: sin jugador a 3 bloques no hay explosión, y nada cambia.",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/minecraft/explosiones",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"creeperId\": {{ _.creeperLejosId }}\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 4
+    },
+    {
+      "_id": "req_4_05",
+      "_type": "request",
+      "parentId": "fld_4_errores",
+      "name": "06 Parámetro inválido → 400",
+      "description": "codigo=parametro_invalido.",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/minecraft/entidades/{{ _.jugadorId }}/amenazas?arma=BAZUCA",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 5
+    }
+  ]
+}
