@@ -12,14 +12,14 @@ usó como revisor, redactor y para escribir código que la autora revisó.
 | 2026-09-30 | Claude (Anthropic) | Claude Opus 5.5 (`claude-opus-5-5`) | POO-06 | Trabajo de la rama `poo-06-mejoras`: separar paquetes, invariantes, sobrecarga de `mover` y del constructor de `Creeper`, errores 400. |
 | 2026-10-04 | Claude (Anthropic), en la app claude.ai | Claude Opus 5.5 (`claude-opus-5-5`) | POO-06 | Revisión de la rama contra el enunciado y la rúbrica antes del merge; redacción de esta bitácora y de la sección del README sobre sobrecarga y sobreescritura. |
 | Octubre 2026 | Claude (Anthropic) | Claude Opus 5.5 (`claude-opus-5-5`) | POO-07 / POO-08 | Interfaz `Arma` y familia `Herramienta`; primera versión de H2, CRUD de entidades, `Explosion`, jerarquía de excepciones y sus tests. |
-| 2026-11-10 | Claude Code (Anthropic), app de escritorio | Claude Opus 5.5 (`claude-opus-5-5`) | POO-08 | Completar el práctico con la corrección de POO-06 (ver abajo). |
+| 2026-11-10 | Claude Code (Anthropic), app de escritorio | Claude Opus 5.5 (`claude-opus-5-5`) | POO-08 | Corregir el trabajo práctico con las correcciones enviadas por el profesor. |
 
 ## Resumen de prompts — sesión del 2026-11-10 (Claude Code, Claude Opus 5.5)
 
 1. **Pedido inicial.** Se pegó la consigna de POO-08 (CRUD REST, H2, dos reglas
    con simulación de explosiones, jerarquía de excepciones con un handler por
-   tipo, interfaz de dominio y colección de Insomnia) y se adjuntó el PDF con la
-   corrección de POO-06, pidiendo completar el trabajo.
+   tipo, interfaz de dominio y colección de Insomnia) para que verifique hasta donde nos habiamos quedado en la ultia clase y se adjuntó el PDF con la
+   corrección de POO-06, pidiendo corregir el trabajo.
 2. **Lo que hizo el asistente:**
    - Leyó la corrección, el enunciado, la rúbrica y el template de paquetes, y
      comparó con el código que ya había.
@@ -38,8 +38,7 @@ usó como revisor, redactor y para escribir código que la autora revisó.
      el tipo y no deja editar a un muerto.
    - Agregó handlers propios para `EntidadMuertaException` (409) y
      `FueraDeAlcanceException` (422).
-   - Actualizó y agregó tests (82 en total), generó la colección de Insomnia,
-     la recorrió contra la app levantada, y reescribió el README y las
+   - Actualizó y agregó tests (82 en total) y reescribió el README y las
      especificaciones.
 3. **Pregunta del asistente.** Preguntó con qué asistente se había hecho el
    trabajo previo, para completar esta tabla sin dejar marcas pendientes, y
@@ -48,9 +47,9 @@ usó como revisor, redactor y para escribir código que la autora revisó.
 ## Resumen de prompts — sesión del 2026-10-04 (Claude Opus 5.5)
 
 1. **Verificación previa al merge.** Se pidió verificar que el repositorio
-   cumpla el enunciado POO-06, la rúbrica y el template de paquetes. El
+   cumpla con el enunciado POO-06, la rúbrica y el template de paquetes. El
    asistente revisó el código, el historial y el README, comparó el diagrama
-   Mermaid con el código y probó los invariantes.
+   Mermaid, con el código, probó los invariantes.
 2. **Aclaración de la rama.** Se indicó que la rama a mergear es
    `poo-06-mejoras`; el asistente confirmó que el merge era *fast-forward* y
    listó lo que faltaba (bitácora, licencia en el README, apartado de
@@ -61,4 +60,3 @@ usó como revisor, redactor y para escribir código que la autora revisó.
 ## Qué no hizo el asistente
 
 - No hizo push, merge ni pull requests.
-- No entregó la tarea en Classroom.
