@@ -200,3 +200,7 @@ tags
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/java,intellij,visualstudiocode,maven,vim
+
+### H2 ###
+# Base de datos local generada al ejecutar la app
+data/
