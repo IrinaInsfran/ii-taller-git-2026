@@ -1,5 +1,6 @@
-package py.edu.uc.lp3.web;
+package py.edu.uc.lp3.rest.controller;
 
+import py.edu.uc.lp3.constants.ApiPaths;
 import java.util.List;
 import java.util.Map;
 
