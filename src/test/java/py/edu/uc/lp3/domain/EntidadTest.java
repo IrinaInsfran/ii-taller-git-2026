@@ -1,6 +1,11 @@
-package py.edu.uc.lp3.minecraft;
+package py.edu.uc.lp3.domain;
 
 import org.junit.jupiter.api.Test;
+
+import py.edu.uc.lp3.exceptions.DatoInvalidoException;
+import py.edu.uc.lp3.exceptions.EntidadMuertaException;
+import py.edu.uc.lp3.exceptions.FueraDeAlcanceException;
+import py.edu.uc.lp3.exceptions.ReglaDelJuegoException;
 
 import java.util.List;
 import java.util.Set;
@@ -16,9 +21,9 @@ class EntidadTest {
 
     @Test
     void constructorRechazaEstadoInvalido() {
-        assertThrows(IllegalArgumentException.class, () -> new Zombie(0, 0, 64, 0, 3, 16, 3));
-        assertThrows(IllegalArgumentException.class, () -> new Jugador(20, 0, 64, 0, 5, " ", 0));
-        assertThrows(IllegalArgumentException.class, () -> new Creeper(20, 0, 64, 0, 2, 16, 3, 0));
+        assertThrows(DatoInvalidoException.class, () -> new Zombie(0, 0, 64, 0, 3, 16, 3));
+        assertThrows(DatoInvalidoException.class, () -> new Jugador(20, 0, 64, 0, 5, " ", 0));
+        assertThrows(DatoInvalidoException.class, () -> new Creeper(20, 0, 64, 0, 2, 16, 3, 0));
     }
 
     @Test
@@ -32,7 +37,7 @@ class EntidadTest {
     @Test
     void danoNegativoSeRechaza() {
         Zombie z = zombie();
-        assertThrows(IllegalArgumentException.class, () -> z.recibirDano(-5));
+        assertThrows(DatoInvalidoException.class, () -> z.recibirDano(-5));
         assertEquals(20, z.getSalud());
     }
 
@@ -47,7 +52,7 @@ class EntidadTest {
     @Test
     void noSeMueveMasQueSuVelocidad() {
         Zombie z = zombie();
-        assertThrows(IllegalArgumentException.class, () -> z.mover(10, 0, 0));
+        assertThrows(ReglaDelJuegoException.class, () -> z.mover(10, 0, 0));
         assertEquals(5, z.getPosicionX());
     }
 
@@ -55,8 +60,8 @@ class EntidadTest {
     void unMuertoNoActua() {
         Zombie z = zombie();
         z.recibirDano(20);
-        assertThrows(IllegalStateException.class, () -> z.mover(1, 0, 0));
-        assertThrows(IllegalStateException.class, () -> z.atacar(steve()));
+        assertThrows(EntidadMuertaException.class, () -> z.mover(1, 0, 0));
+        assertThrows(EntidadMuertaException.class, () -> z.atacar(steve()));
     }
 
     @Test
@@ -72,7 +77,7 @@ class EntidadTest {
     void esqueletoNoAtacaFueraDeRango() {
         Esqueleto e = new Esqueleto(20, 30, 64, 0, 3, 10, 4);
         Jugador j = steve();
-        assertThrows(IllegalStateException.class, () -> e.atacar(j));
+        assertThrows(FueraDeAlcanceException.class, () -> e.atacar(j));
         assertEquals(20, j.getSalud());
     }
 
@@ -82,7 +87,7 @@ class EntidadTest {
         assertDoesNotThrow(a::comercio);
         zombie().infectaAldeano(a);
         assertTrue(a.isInfectado());
-        assertThrows(IllegalStateException.class, a::comercio);
+        assertThrows(ReglaDelJuegoException.class, a::comercio);
     }
 
     @Test
@@ -97,13 +102,13 @@ class EntidadTest {
     @Test
     void animalNoMontableSeRechaza() {
         Animal gallina = new Animal(4, 0, 64, 0, 1, false, false);
-        assertThrows(IllegalStateException.class, () -> gallina.montar(steve()));
+        assertThrows(ReglaDelJuegoException.class, () -> gallina.montar(steve()));
     }
 
     @Test
     void experienciaSoloSube() {
         Jugador j = steve();
-        assertThrows(IllegalArgumentException.class, () -> j.ganarExperiencia(-10));
+        assertThrows(DatoInvalidoException.class, () -> j.ganarExperiencia(-10));
         j.ganarExperiencia(5);
         assertEquals(5, j.getNivelEXP());
     }
@@ -148,7 +153,7 @@ class EntidadTest {
         Jugador j = steve();
         j.ganarExperiencia(Integer.MAX_VALUE);
         assertEquals(Integer.MAX_VALUE, j.getNivelEXP());
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(DatoInvalidoException.class,
                 () -> j.ganarExperiencia(1));
         assertEquals(Integer.MAX_VALUE, j.getNivelEXP());
     }
@@ -157,36 +162,36 @@ class EntidadTest {
     void velocidadCeroEsValidaPeroImpideHuir() {
         Aldeano quieto = new Aldeano(20, 0, 64, 0, 0, false, "Pescador");
         assertEquals(0, quieto.getVelocidad());
-        assertThrows(IllegalStateException.class, () -> quieto.huir(zombie()));
+        assertThrows(ReglaDelJuegoException.class, () -> quieto.huir(zombie()));
         quieto.mover(0, 0, 0);
         assertEquals(0, quieto.getPosicionX());
     }
 
     @Test
     void posicionesNoFinitasSeRechazanEnElConstructor() {
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(DatoInvalidoException.class,
                 () -> new Zombie(20, Double.NaN, 64, 0, 3, 16, 3));
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(DatoInvalidoException.class,
                 () -> new Zombie(20, 0, Double.POSITIVE_INFINITY, 0, 3, 16, 3));
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(DatoInvalidoException.class,
                 () -> new Zombie(20, 0, 64, Double.NEGATIVE_INFINITY, 3, 16, 3));
     }
 
     @Test
     void desplazamientoNoFinitoSeRechaza() {
         Zombie z = zombie();
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(DatoInvalidoException.class,
                 () -> z.mover(Double.NaN, 0, 0));
         assertEquals(5, z.getPosicionX());
     }
 
     @Test
     void rangoDeteccionNoFinitoSeRechaza() {
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(DatoInvalidoException.class,
                 () -> new Zombie(20, 0, 64, 0, 3, Double.NaN, 3));
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(DatoInvalidoException.class,
                 () -> new Zombie(20, 0, 64, 0, 3, Double.POSITIVE_INFINITY, 3));
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(DatoInvalidoException.class,
                 () -> new Zombie(20, 0, 64, 0, 3, -1, 3));
     }
 
@@ -234,7 +239,7 @@ class EntidadTest {
     @Test
     void moverEnHorizontalRespetaLaVelocidad() {
         Zombie z = zombie();
-        assertThrows(IllegalArgumentException.class, () -> z.mover(4, 0));
+        assertThrows(ReglaDelJuegoException.class, () -> z.mover(4, 0));
         assertEquals(5, z.getPosicionX());
     }
 
@@ -269,7 +274,7 @@ class EntidadTest {
 
     @Test
     void elConstructorSobrecargadoTambienValidaLaPosicion() {
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(DatoInvalidoException.class,
                 () -> new Creeper(Double.NaN, 64, 0));
     }
 }

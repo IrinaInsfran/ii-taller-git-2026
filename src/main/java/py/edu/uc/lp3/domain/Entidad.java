@@ -1,32 +1,55 @@
-package py.edu.uc.lp3.minecraft;
+package py.edu.uc.lp3.domain;
+
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+
+import py.edu.uc.lp3.exceptions.DatoInvalidoException;
+import py.edu.uc.lp3.exceptions.EntidadMuertaException;
+import py.edu.uc.lp3.exceptions.ReglaDelJuegoException;
 
 /**
  * Clase base que representa cualquier entidad del mundo del juego.
  */
+@Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "tipo_entidad")
 public abstract class Entidad {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private int salud;
-    private final int saludMaxima;
+    private int saludMaxima;
     private double posicionX;
     private double posicionY;
     private double posicionZ;
-    private final int velocidad;
+    private int velocidad;
+
+    /** Constructor requerido por JPA para reconstruir la entidad desde la base. */
+    protected Entidad() {
+    }
 
     public Entidad(int salud, double posicionX, double posicionY,
                    double posicionZ, int velocidad) {
 
         if (salud <= 0) {
-            throw new IllegalArgumentException("La salud debe ser mayor que cero.");
+            throw new DatoInvalidoException("La salud debe ser mayor que cero.");
         }
 
         if (velocidad < 0) {
-            throw new IllegalArgumentException("La velocidad no puede ser negativa.");
+            throw new DatoInvalidoException("La velocidad no puede ser negativa.");
         }
 
         if (!Double.isFinite(posicionX)
                 || !Double.isFinite(posicionY)
                 || !Double.isFinite(posicionZ)) {
-            throw new IllegalArgumentException("La posición debe contener valores válidos.");
+            throw new DatoInvalidoException("La posición debe contener valores válidos.");
         }
 
         this.salud = salud;
@@ -53,17 +76,18 @@ public abstract class Entidad {
     public void mover(double dx, double dy, double dz) {
 
         if (!estaViva()) {
-            throw new IllegalStateException("Una entidad muerta no puede moverse.");
+            throw new EntidadMuertaException("Una entidad muerta no puede moverse.");
         }
 
         if (!Double.isFinite(dx) || !Double.isFinite(dy) || !Double.isFinite(dz)) {
-            throw new IllegalArgumentException("El desplazamiento debe contener valores válidos.");
+            throw new DatoInvalidoException("El desplazamiento debe contener valores válidos.");
         }
 
         double distancia = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
         if (distancia > velocidad + 1e-9) {
-            throw new IllegalArgumentException(
+            throw new ReglaDelJuegoException(
+                    "excede_velocidad",
                     "La entidad no puede moverse más que su velocidad."
             );
         }
@@ -75,7 +99,7 @@ public abstract class Entidad {
 
     public double distanciaA(Entidad otra) {
         if (otra == null) {
-            throw new IllegalArgumentException("La otra entidad no puede ser nula.");
+            throw new DatoInvalidoException("La otra entidad no puede ser nula.");
         }
 
         double dx = otra.posicionX - posicionX;
@@ -88,13 +112,13 @@ public abstract class Entidad {
     public void recibirDano(int cantidad) {
 
         if (cantidad <= 0) {
-            throw new IllegalArgumentException(
+            throw new DatoInvalidoException(
                     "La cantidad de daño debe ser mayor que cero."
             );
         }
 
         if (!estaViva()) {
-            throw new IllegalStateException(
+            throw new EntidadMuertaException(
                     "Una entidad muerta no puede recibir más daño."
             );
         }
@@ -109,13 +133,13 @@ public abstract class Entidad {
     public void curar(int cantidad) {
 
         if (cantidad <= 0) {
-            throw new IllegalArgumentException(
+            throw new DatoInvalidoException(
                     "La cantidad de curación debe ser mayor que cero."
             );
         }
 
         if (!estaViva()) {
-            throw new IllegalStateException(
+            throw new EntidadMuertaException(
                     "Una entidad muerta no puede ser curada."
             );
         }
@@ -162,5 +186,55 @@ public abstract class Entidad {
     public int getVelocidad() {
         return velocidad;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    /**
+     * Reemplaza todo el estado de esta entidad por el de {@code nueva}
+     * (lo usa el PUT). No hay un setter por campo: {@code nueva} ya paso por
+     * un constructor, asi que sus valores cumplen los invariantes, y el id
+     * de esta entidad no cambia.
+     * <p>
+     * Reglas: no se puede cambiar de tipo (un zombie no pasa a ser jugador)
+     * y una entidad muerta no se edita, porque un PUT no es una forma de
+     * resucitar.
+     */
+    public final void reemplazarCon(Entidad nueva) {
+
+        if (nueva == null) {
+            throw new DatoInvalidoException("La entidad nueva no puede ser nula.");
+        }
+
+        if (nueva.getClass() != getClass()) {
+            throw new DatoInvalidoException(
+                    "cambio_de_tipo",
+                    "No se puede cambiar el tipo de una entidad: la entidad "
+                    + id + " es " + getClass().getSimpleName().toUpperCase() + ".");
+        }
+
+        if (!estaViva()) {
+            throw new EntidadMuertaException(
+                    "La entidad " + id + " está muerta: no se puede modificar.");
+        }
+
+        copiarEstadoDe(nueva);
+    }
+
+    /**
+     * Copia los campos de esta clase desde {@code otra}, que es de la misma
+     * clase concreta. Cada clase hija lo sobreescribe, llama a
+     * {@code super.copiarEstadoDe(otra)} y copia sus propios campos.
+     */
+    protected void copiarEstadoDe(Entidad otra) {
+        salud = otra.salud;
+        saludMaxima = otra.saludMaxima;
+        posicionX = otra.posicionX;
+        posicionY = otra.posicionY;
+        posicionZ = otra.posicionZ;
+        velocidad = otra.velocidad;
+    }
+
     public abstract String describirComportamiento();
 }

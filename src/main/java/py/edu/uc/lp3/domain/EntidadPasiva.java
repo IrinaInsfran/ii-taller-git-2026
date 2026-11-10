@@ -1,4 +1,10 @@
-package py.edu.uc.lp3.minecraft;
+package py.edu.uc.lp3.domain;
+
+import jakarta.persistence.Entity;
+
+import py.edu.uc.lp3.exceptions.DatoInvalidoException;
+import py.edu.uc.lp3.exceptions.EntidadMuertaException;
+import py.edu.uc.lp3.exceptions.ReglaDelJuegoException;
 
 /**
  * Representa una entidad pasiva que no ataca y puede huir de amenazas.
@@ -6,9 +12,14 @@ package py.edu.uc.lp3.minecraft;
  * Es abstracta: una "pasiva generica" no describe un comportamiento concreto
  * del juego, asi que cada subclase debe decir como se comporta.
  */
+@Entity
 public abstract class EntidadPasiva extends Entidad {
 
-    private final boolean domesticable;
+    private boolean domesticable;
+
+    /** Constructor requerido por JPA para reconstruir la entidad desde la base. */
+    protected EntidadPasiva() {
+    }
 
     public EntidadPasiva(int salud,
                          double posicionX,
@@ -24,11 +35,11 @@ public abstract class EntidadPasiva extends Entidad {
     public void huir(Entidad amenaza) {
 
         if (amenaza == null) {
-            throw new IllegalArgumentException("La amenaza no puede ser nula.");
+            throw new DatoInvalidoException("La amenaza no puede ser nula.");
         }
 
         if (!estaViva()) {
-            throw new IllegalStateException("Una entidad muerta no puede huir.");
+            throw new EntidadMuertaException("Una entidad muerta no puede huir.");
         }
 
         double dx = getPosicionX() - amenaza.getPosicionX();
@@ -38,7 +49,7 @@ public abstract class EntidadPasiva extends Entidad {
         double distancia = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
         if (getVelocidad() == 0) {
-            throw new IllegalStateException("La entidad no tiene velocidad para huir.");
+            throw new ReglaDelJuegoException("sin_velocidad", "La entidad no tiene velocidad para huir.");
         }
 
         if (distancia == 0) {
@@ -49,6 +60,12 @@ public abstract class EntidadPasiva extends Entidad {
         double factor = getVelocidad() / distancia;
 
         mover(dx * factor, dy * factor, dz * factor);
+    }
+
+    @Override
+    protected void copiarEstadoDe(Entidad otra) {
+        super.copiarEstadoDe(otra);
+        domesticable = ((EntidadPasiva) otra).domesticable;
     }
 
     public boolean isDomesticable() {
