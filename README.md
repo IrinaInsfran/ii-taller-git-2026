@@ -5,6 +5,7 @@
 - **Materia:** Lenguaje de Programación 3 — Sección F
 - **Ejercicio:** POO-08 — CRUD REST, H2, reglas de juego y excepciones (dominio **Minecraft**)
 - **Licencia:** [Apache License 2.0](LICENSE)
+- **Commit de la solución:** [https://github.com/IrinaInsfran/ii-taller-git-2026/commit/fed74e97a1981e062f8c4a548e69bd91bd1e46c5](https://github.com/IrinaInsfran/ii-taller-git-2026/commit/fed74e97a1981e062f8c4a548e69bd91bd1e46c5)
 - **Bitácora de uso de IA:** [BITACORA.md](BITACORA.md)
 - **Especificaciones (Classroom):** [docs/ESPECIFICACIONES-POO-08.md](docs/ESPECIFICACIONES-POO-08.md)
 - **Colección Insomnia:** [insomnia/minecraft-poo08-insomnia.json](insomnia/minecraft-poo08-insomnia.json)

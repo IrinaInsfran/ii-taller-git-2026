@@ -2,6 +2,7 @@
 
 - **Alumna:** Irina Insfrán — LP3, Sección F
 - **Repositorio:** https://github.com/IrinaInsfran/ii-taller-git-2026
+- **Commit de la solución:** https://github.com/IrinaInsfran/ii-taller-git-2026/commit/fed74e97a1981e062f8c4a548e69bd91bd1e46c5
 - **Arranque:** `./mvnw spring-boot:run` (puerto 8080)
 
 ## Objetivo
