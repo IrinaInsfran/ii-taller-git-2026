@@ -47,9 +47,7 @@ para no tocar `./data`):
 
 ## Paquetes
 
-Siguen el [template de la cátedra](https://github.com/alefq/lp3-template-tp/tree/main/src/main/java/py/edu/uc/lp3)
-(corrección de POO-06: antes el dominio estaba en `minecraft` y los controllers
-en `web`).
+Siguen el https://github.com/alefq/lp3-template-tp/tree/main/src/main/java/py/edu/uc/lp3
 
 | Paquete | Qué contiene |
 |---|---|
@@ -79,8 +77,7 @@ Base: `http://localhost:8080`. Todas las rutas están en `ApiPaths`.
 | `GET /api/minecraft/explosiones` | Historial de explosiones guardadas. | 200 |
 | `GET /api/minecraft/explosiones/{id}` | Una explosión, o 404. | 200 |
 
-Los endpoints `GET /api/minecraft/creeper` de POO-06 se quitaron: un `GET` que
-"crea" algo que no se guarda contradice el CRUD; ahora un creeper se crea con
+ Ahora un creeper se crea con
 `POST /api/minecraft/entidades`.
 
 ### Ejemplo: crear con el constructor completo o con el sobrecargado
@@ -369,51 +366,57 @@ Todas las respuestas de error tienen la misma forma:
 
 ## Qué hay que pensar — respuestas
 
-**Recurso y verbo.** Los sustantivos son `entidades` (el CRUD) y `explosiones`
+**Recurso y verbo.** 
+Los sustantivos son `entidades` (el CRUD) y `explosiones`
 (la simulación). La URL nombra el recurso y el verbo dice la operación: no hay
 URLs como `/crearCreeper` ni `/detonar`. Detonar es *crear una explosión*, por
 eso es `POST /explosiones`.
 
-**Identidad.** La clave es `id` (`Long`), la asigna H2 con
+**Identidad.**
+La clave es `id` (`Long`), la asigna H2 con
 `@GeneratedValue(strategy = IDENTITY)`. El JSON de creación no la lleva
-(`EntidadRequest` no tiene `id`); la respuesta sí, y el `Location` apunta a
+(`EntidadRequest` no tiene `id`) y el `Location` apunta a
 `/api/minecraft/entidades/{id}`. `Entidad` no tiene `setId`: nadie fuera de
 JPA puede cambiar la identidad.
 
-**Herencia y tablas.** Elegí `SINGLE_TABLE`: toda la familia `Entidad` vive en
+**Herencia y tablas.** 
+Elegí `SINGLE_TABLE`: toda la familia `Entidad` vive en
 la tabla `ENTIDAD` y la columna `TIPO_ENTIDAD` (`@DiscriminatorColumn`) dice la
-clase (`JUGADOR`, `CREEPER`...). En mi dominio la simulación necesita "todas
+clase (`JUGADOR`, `CREEPER`...). 
+En mi dominio la simulación necesita "todas
 las entidades cerca de la explosión" sin importar el tipo: con una sola tabla
 es un `SELECT` sin `JOIN`. El costo son columnas en `NULL` (un jugador no tiene
 `tiempoExplosion`), aceptable con siete clases chicas. `JOINED` obligaría a
 unir hasta tres tablas por entidad, y `TABLE_PER_CLASS` haría un `UNION` para
-listar. En el JSON el subtipo va en el campo `tipo`, al crear y al listar.
+listar. 
+En el JSON el subtipo va en el campo `tipo`, al crear y al listar.
 No usé `@JsonTypeInfo` en `Entidad` a propósito: el dominio no tiene
 anotaciones de Jackson y no tiene constructor vacío público ni setters para
 que Jackson lo arme; el DTO `EntidadRequest` trae `tipo` y el servicio llama al
 constructor de la clase hija, que valida. `TipoEntidad` es el `enum` que hace
 de discriminador en el JSON.
 
-**Interfaz y repositorio.** `EntidadRepository extends JpaRepository<Entidad, Long>`
+**Interfaz y repositorio.**
+`EntidadRepository extends JpaRepository<Entidad, Long>`
 es una interfaz; Spring genera la implementación. Los servicios dependen de ese
 tipo y los controllers dependen de interfaces de servicio (`EntidadService`...),
-no de clases concretas: si mañana cambio H2 por PostgreSQL, toco
+no de clases concretas: si el dia de mañana cambio H2 por PostgreSQL, toco
 `application.properties` y la dependencia del driver en `pom.xml`; el dominio,
 los repositorios, los servicios y los controllers quedan quietos. Es la misma
 idea que el protocolo de POO-07: quien llama conoce el mensaje, no quién lo
 implementa.
 
-**Protocolo del dominio.** `Amenaza` (`danoContra(Entidad)`,
-`describirAmenaza()`): algo que le puede hacer daño a una entidad. La
-implementan dos familias que no comparten padre: `EntidadHostil` (`Zombie`,
+**Protocolo del dominio.** 
+`Amenaza` (`danoContra(Entidad)`,`describirAmenaza()`): algo que le puede hacer daño a una entidad.
+La implementan dos familias que no comparten padre: `EntidadHostil` (`Zombie`,
 `Esqueleto`, y `Creeper`, que la sobreescribe porque su peligro es la
 explosión) y `Arma` → `Espada`, `Hacha` (que son `Herramienta`). La usa
 `GET /api/minecraft/entidades/{id}/amenazas`: `AmenazaServiceImpl` arma una
 `List<Amenaza>` con los mobs hostiles guardados y, si se pide
-`?arma=ESPADA&material=DIAMANTE`, una espada; `AmenazasResponse` le pregunta a
-cada una sin saber de qué clase es.
+`?arma=ESPADA&material=DIAMANTE`, una espada; `AmenazasResponse` le pregunta a cada una sin saber de qué clase es.
 
-**Ocultamiento.** Las reglas numéricas las sostienen los constructores y los
+**Ocultamiento.** 
+Las reglas numéricas las sostienen los constructores y los
 métodos del dominio (`salud > 0`, `velocidad >= 0`, posiciones finitas,
 `curar` sin desbordar, `tiempoExplosion > 0`, `Math.addExact` en la
 experiencia). El constructor vacío que pide JPA es `protected`: solo Hibernate
@@ -424,28 +427,32 @@ campos: construye una entidad nueva (pasa por las validaciones) y llama a
 En Insomnia, «POST ilegal (salud negativa)» devuelve 400 y el siguiente
 «GET lista de entidades» muestra la misma cantidad que antes.
 
-**PUT y PATCH.** Implementé `PUT`: reemplaza el recurso entero. Un campo
+**PUT y PATCH.**
+Implementé `PUT`: reemplaza el recurso entero. Un campo
 obligatorio omitido es un 400 (`campo_obligatorio`); los opcionales
 (`nivelEXP`, `domesticable`, `montable`) toman su valor por defecto, no el
 anterior. Si no se manda ninguna estadística se usan los valores del
 constructor sobrecargado. No hay `PATCH`: un cambio parcial del estado del
 juego (moverse, recibir daño) es un mensaje del dominio, no una edición.
 
-**DELETE.** Borrar es sacar a la entidad del mundo (como un *despawn*), no
+**DELETE.** 
+Borrar es sacar a la entidad del mundo (como un *despawn*), no
 matarla: la fila se borra y la respuesta es 204; un `GET` posterior da 404.
 Morir es otra cosa: lo decide el dominio (`recibirDano` → `morir()`) y la
 entidad queda guardada con `viva: false`. Por eso `DELETE` no llama a un
 mensaje del juego. Las explosiones guardan el `creeperId` como número y no como
 relación: borrar al creeper no borra la historia.
 
-**Dos reglas.** "Mecha corta" y "onda expansiva" (ver arriba). La explosión
+**Dos reglas.**
+"Mecha corta" y "onda expansiva" (ver arriba). La explosión
 cambia varios objetos a la vez: el creeper muere y cada entidad del radio
 pierde salud. El recurso es `explosiones`; después de `POST
 /api/minecraft/explosiones`, `GET /api/minecraft/entidades/{id}` muestra la
 salud ya guardada y `GET /api/minecraft/explosiones` el registro de la
 explosión.
 
-**Excepciones.** La base es `MinecraftException` (abstracta) y las hijas
+**Excepciones.** 
+La base es `MinecraftException` (abstracta) y las hijas
 llevan el nombre de la pregunta que falla: `DatoInvalidoException` (¿el dato
 tiene sentido?), `EntidadNoEncontradaException` (¿existe?) y
 `ReglaDelJuegoException` (¿el juego lo permite?), con
