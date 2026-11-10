@@ -1,42 +1,64 @@
 # Bitácora de uso de asistentes de IA
 
-Ejercicio: POO-06 — Revisión, paquetes, constructores y sobrecarga
-(`ejercicio-poo-06-revision-paquetes-constructores-2026-09-30`).
-
 Esta bitácora registra qué asistente de IA se usó, con qué modelo exacto y para
-qué. Las decisiones de diseño y el código entregado son responsabilidad de la
-autora; el asistente se usó como revisor y redactor de apoyo.
+qué, en los ejercicios POO-06 a POO-08 de este repositorio. Las decisiones de
+diseño y el código entregado son responsabilidad de la autora; el asistente se
+usó como revisor, redactor y para escribir código que la autora revisó.
 
 ## Sesiones
 
-| Fecha | Asistente (marca) | Modelo de LLM exacto | Para qué |
-|---|---|---|---|
-| _completar_ | _completar_ | _completar_ | Trabajo de la rama `poo-06-mejoras` del 30/09/2026 (refactor de paquetes, invariantes, sobrecarga, errores 400, README). Si no se usó IA, anotar "sin asistente". |
-| 2026-10-04 | Claude (Anthropic), en la app claude.ai | Claude Opus 5.5 (`claude-opus-5-5`) | Revisión de la rama `poo-06-mejoras` contra el enunciado y la rúbrica antes del merge a `main`; redacción de esta bitácora y de la sección del README sobre sobrecarga y sobreescritura. |
+| Fecha | Asistente (marca) | Modelo de LLM exacto | Ejercicio | Para qué |
+|---|---|---|---|---|
+| 2026-09-30 | Claude (Anthropic) | Claude Opus 5.5 (`claude-opus-5-5`) | POO-06 | Trabajo de la rama `poo-06-mejoras`: separar paquetes, invariantes, sobrecarga de `mover` y del constructor de `Creeper`, errores 400. |
+| 2026-10-04 | Claude (Anthropic), en la app claude.ai | Claude Opus 5.5 (`claude-opus-5-5`) | POO-06 | Revisión de la rama contra el enunciado y la rúbrica antes del merge; redacción de esta bitácora y de la sección del README sobre sobrecarga y sobreescritura. |
+| Octubre 2026 | Claude (Anthropic) | Claude Opus 5.5 (`claude-opus-5-5`) | POO-07 / POO-08 | Interfaz `Arma` y familia `Herramienta`; primera versión de H2, CRUD de entidades, `Explosion`, jerarquía de excepciones y sus tests. |
+| 2026-11-10 | Claude Code (Anthropic), app de escritorio | Claude Opus 5.5 (`claude-opus-5-5`) | POO-08 | Completar el práctico con la corrección de POO-06 (ver abajo). |
+
+## Resumen de prompts — sesión del 2026-11-10 (Claude Code, Claude Opus 5.5)
+
+1. **Pedido inicial.** Se pegó la consigna de POO-08 (CRUD REST, H2, dos reglas
+   con simulación de explosiones, jerarquía de excepciones con un handler por
+   tipo, interfaz de dominio y colección de Insomnia) y se adjuntó el PDF con la
+   corrección de POO-06, pidiendo completar el trabajo.
+2. **Lo que hizo el asistente:**
+   - Leyó la corrección, el enunciado, la rúbrica y el template de paquetes, y
+     comparó con el código que ya había.
+   - **Corrección de POO-06, criterio 2:** renombró los paquetes al template
+     (`minecraft` → `domain`, `web` → `rest.controller`, excepciones en
+     `exceptions`, `ApiPaths` en `constants`).
+   - **Corrección de POO-06, criterio 5:** agregó constructores sobrecargados
+     a `Jugador`, `Zombie`, `Esqueleto`, `Aldeano` y `Animal`, y el `POST` los
+     usa cuando no se mandan estadísticas.
+   - Creó la interfaz `Amenaza` (mobs hostiles y armas) y el endpoint
+     `GET /entidades/{id}/amenazas`.
+   - Hizo de `Explosion` una entidad persistida, movió la regla de "mecha
+     corta" al dominio (`Creeper.elegirObjetivo` / `explotarCercaDe`) y cambió
+     la simulación a `POST /api/minecraft/explosiones` con historial.
+   - Quitó el `setId` público: el PUT usa `Entidad.reemplazarCon`, que valida
+     el tipo y no deja editar a un muerto.
+   - Agregó handlers propios para `EntidadMuertaException` (409) y
+     `FueraDeAlcanceException` (422).
+   - Actualizó y agregó tests (82 en total), generó la colección de Insomnia,
+     la recorrió contra la app levantada, y reescribió el README y las
+     especificaciones.
+3. **Pregunta del asistente.** Preguntó con qué asistente se había hecho el
+   trabajo previo, para completar esta tabla sin dejar marcas pendientes, y
+   cómo organizar los commits (rama `poo-08-crud-h2`, commits separados).
 
 ## Resumen de prompts — sesión del 2026-10-04 (Claude Opus 5.5)
 
 1. **Verificación previa al merge.** Se pidió verificar que el repositorio
-   `ii-taller-git-2026` cumpla el enunciado POO-06, la rúbrica de la cátedra
-   (ocho criterios) y el template de paquetes, para poder hacer merge a `main`.
-   - El asistente revisó el código, el historial de Git y el README.
-   - Comparó el diagrama Mermaid con el código, método por método.
-   - Compiló el dominio y probó los invariantes: constructor sobrecargado,
-     rechazo de `NaN` y de salud 0, desbordes de `curar` y de `ganarExperiencia`,
-     y tope de velocidad.
-   - No pudo ejecutar Maven: el entorno del asistente no accede a Maven
-     Central. Los tests y `./mvnw spring-boot:run` se verifican localmente.
+   cumpla el enunciado POO-06, la rúbrica y el template de paquetes. El
+   asistente revisó el código, el historial y el README, comparó el diagrama
+   Mermaid con el código y probó los invariantes.
 2. **Aclaración de la rama.** Se indicó que la rama a mergear es
-   `poo-06-mejoras`. El asistente confirmó que el merge es *fast-forward* y sin
-   conflictos, y listó lo que faltaba: esta bitácora, la mención de la licencia
-   en el README, un apartado sobre sobrecarga y sobreescritura, el enlace al
-   commit y el archivo de especificaciones para Classroom.
+   `poo-06-mejoras`; el asistente confirmó que el merge era *fast-forward* y
+   listó lo que faltaba (bitácora, licencia en el README, apartado de
+   sobrecarga y sobreescritura, enlace al commit).
 3. **Redacción.** Se pidió crear esta bitácora y la sección del README
-   «Sobrecarga y sobreescritura: qué cambió». También se agregaron al README la
-   licencia, el lugar para el enlace al commit y una línea que justifica los
-   nombres de los paquetes.
+   «Sobrecarga y sobreescritura».
 
 ## Qué no hizo el asistente
 
-- No escribió código del dominio ni de la API en esta sesión.
-- No hizo push ni merge en el repositorio.
+- No hizo push, merge ni pull requests.
+- No entregó la tarea en Classroom.
