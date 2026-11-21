@@ -242,14 +242,12 @@ class EntidadControllerTest {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.objetivoId").value(steve))
 				.andExpect(jsonPath("$.amenazas.length()").value(3))
-				.andExpect(jsonPath("$.amenazas[0].origen").value("Creeper"))
-				.andExpect(jsonPath("$.amenazas[0].dano").value(16))
-				.andExpect(jsonPath("$.amenazas[1].origen").value("Espada"))
-				.andExpect(jsonPath("$.amenazas[1].dano").value(7))
-				.andExpect(jsonPath("$.amenazas[2].origen").value("Zombie"))
+				.andExpect(jsonPath("$.amenazas[0].origen").value("Espada"))
+				.andExpect(jsonPath("$.amenazas[0].dano").value(7))
+				.andExpect(jsonPath("$.amenazas[1].dano").value(3))
 				.andExpect(jsonPath("$.amenazas[2].dano").value(3))
-				.andExpect(jsonPath("$.danoTotal").value(26))
-				.andExpect(jsonPath("$.sobreviviria").value(false));
+				.andExpect(jsonPath("$.danoTotal").value(13))
+				.andExpect(jsonPath("$.sobreviviria").value(true));
 	}
 
 	@Test

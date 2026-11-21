@@ -4,17 +4,12 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import py.edu.uc.lp3.exceptions.DatoInvalidoException;
-import py.edu.uc.lp3.exceptions.EntidadMuertaException;
-import py.edu.uc.lp3.exceptions.FueraDeAlcanceException;
-import py.edu.uc.lp3.exceptions.ReglaDelJuegoException;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Lo nuevo de POO-08 en el dominio, sin Spring ni base de datos:
- * constructores sobrecargados, las dos reglas de la simulacion, el
- * protocolo Amenaza y el reemplazo de estado que usa el PUT.
+ * Lo de POO-08 que queda en el dominio, sin Spring ni base de datos:
+ * constructores sobrecargados, el protocolo Amenaza, el reemplazo de estado
+ * que usa el PUT y el registro de una explosión.
  */
 class SimulacionYProtocoloTest {
 
@@ -43,76 +38,6 @@ class SimulacionYProtocoloTest {
         assertFalse(vaca.isMontable());
     }
 
-    @Test
-    void losConstructoresSimplesTambienValidan() {
-        assertThrows(DatoInvalidoException.class, () -> new Jugador(" "));
-        assertThrows(DatoInvalidoException.class, () -> new Zombie(Double.NaN, 64, 0));
-        assertThrows(DatoInvalidoException.class, () -> new Aldeano(0, 64, 0, ""));
-    }
-
-    // ---------- Regla 1: mecha corta
-
-    @Test
-    void elCreeperApuntaAlJugadorVivoMasCercano() {
-        Creeper creeper = new Creeper(0, 64, 0);
-        Jugador lejos = new Jugador("Lejos", 2.5, 64, 0);
-        Jugador cerca = new Jugador("Cerca", 1, 64, 0);
-        Jugador muyLejos = new Jugador("MuyLejos", 10, 64, 0);
-
-        assertSame(cerca, creeper.elegirObjetivo(List.of(lejos, muyLejos, cerca)));
-    }
-
-    @Test
-    void sinJugadorCercaNoExplotaYNadaCambia() {
-        Creeper creeper = new Creeper(0, 64, 0);
-        Jugador steve = new Jugador("Steve", 5, 64, 0);
-
-        assertThrows(FueraDeAlcanceException.class,
-                () -> creeper.explotarCercaDe(List.of(steve), List.of(steve)));
-        assertTrue(creeper.estaViva());
-        assertEquals(20, steve.getSalud());
-    }
-
-    // ---------- Regla 2: onda expansiva
-
-    @Test
-    void laExplosionDanaAVariasEntidadesYMataAlCreeper() {
-        Creeper creeper = new Creeper(3, 64, 0);
-        Jugador steve = new Jugador("Steve", 0, 64, 0);
-        Aldeano aldeano = new Aldeano(5, 64, 0, "Herrero");
-
-        Explosion explosion = creeper.explotarCercaDe(
-                List.of(steve), List.of(creeper, steve, aldeano));
-
-        assertFalse(creeper.estaViva());
-        assertEquals(4, steve.getSalud());
-        assertFalse(aldeano.estaViva());
-        assertEquals("Steve", explosion.getJugadorObjetivo());
-        assertEquals(2, explosion.getEntidadesAlcanzadas());
-        assertEquals(1, explosion.getEntidadesMuertas());
-        assertEquals(16 + 24, explosion.getDanoTotal(), "cuenta el daño de la explosión, no la salud perdida");
-    }
-
-    @Test
-    void unCreeperMuertoNoExplota() {
-        Creeper creeper = new Creeper(0, 64, 0);
-        creeper.explotar();
-        Jugador steve = new Jugador("Steve", 1, 64, 0);
-
-        assertThrows(EntidadMuertaException.class,
-                () -> creeper.explotarCercaDe(List.of(steve), List.of(steve)));
-    }
-
-    @Test
-    void unaExplosionDetonaUnaSolaVez() {
-        Explosion explosion = new Explosion(0, 64, 0, 3);
-        explosion.detonar(List.of());
-
-        ReglaDelJuegoException error = assertThrows(ReglaDelJuegoException.class,
-                () -> explosion.detonar(List.of()));
-        assertEquals("explosion_ya_detonada", error.getCodigo());
-    }
-
     // ---------- Protocolo Amenaza
 
     @Test
@@ -122,13 +47,13 @@ class SimulacionYProtocoloTest {
         List<Amenaza> amenazas = List.of(
                 new Zombie(10, 64, 0),          // dentro de su rango (35)
                 new Esqueleto(30, 64, 0),       // fuera de su rango (16)
-                new Creeper(3, 64, 0),          // su daño es el de la explosion
+                new Creeper(3, 64, 0),          // dentro de su rango (16)
                 new Espada(Material.DIAMANTE),  // otra familia: Herramienta
                 new Hacha(Material.MADERA));
 
         List<Integer> danos = amenazas.stream().map(a -> a.danoContra(steve)).toList();
 
-        assertEquals(List.of(3, 0, 16, 7, 7), danos);
+        assertEquals(List.of(3, 0, 3, 7, 7), danos);
         amenazas.forEach(a -> assertFalse(a.describirAmenaza().isBlank()));
         assertEquals(20, steve.getSalud(), "consultar no daña");
     }
@@ -136,37 +61,62 @@ class SimulacionYProtocoloTest {
     @Test
     void unArmaRotaNoEsAmenaza() {
         Espada espada = new Espada(Material.ORO);
-        Zombie zombie = new Zombie(20, 0, 64, 0, 1, 16, 1);
-        for (int i = 0; i < Material.ORO.getDurabilidad(); i++) {
-            zombie.curar(10);
-            espada.atacar(zombie);
-        }
+        espada.desgastar(Material.ORO.getDurabilidad());
 
         assertTrue(espada.estaRota());
-        assertEquals(0, espada.danoContra(zombie));
+        assertEquals(0, espada.danoContra(new Zombie(0, 64, 0)));
+    }
+
+    @Test
+    void unMobMuertoNoEsAmenaza() {
+        Zombie zombie = new Zombie(1, 64, 0);
+        zombie.morir();
+        assertEquals(0, zombie.danoContra(new Jugador("Steve")));
     }
 
     // ---------- PUT: reemplazar estado sin setters
 
     @Test
-    void reemplazarConCopiaElEstadoPeroNoElTipo() {
+    void reemplazarConCopiaElEstadoPeroNoElId() {
         Jugador steve = new Jugador("Steve");
         steve.reemplazarCon(new Jugador(15, 1, 70, 2, 3, "Steve2", 9));
 
         assertEquals("Steve2", steve.getNombre());
         assertEquals(15, steve.getSalud());
+        assertEquals(70, steve.getPosicionY());
         assertEquals(9, steve.getNivelEXP());
+        assertNull(steve.getId());
+    }
 
-        assertThrows(DatoInvalidoException.class,
-                () -> steve.reemplazarCon(new Zombie(0, 64, 0)));
+    // ---------- Registro de la explosión
+
+    @Test
+    void laExplosionDeUnCreeperGuardaQuienLaProvoco() {
+        Creeper creeper = new Creeper(3, 64, 0);
+        Explosion explosion = new Explosion(creeper, new Jugador("Steve", 0, 64, 0));
+
+        assertEquals(Creeper.POTENCIA_EXPLOSION, explosion.getPotencia());
+        assertEquals(6, explosion.getRadio());
+        assertEquals(3, explosion.getCentroX());
+        assertEquals("Steve", explosion.getJugadorObjetivo());
+        assertFalse(explosion.isDetonada());
     }
 
     @Test
-    void unaEntidadMuertaNoSeReemplaza() {
-        Creeper creeper = new Creeper(0, 64, 0);
-        creeper.explotar();
+    void registrarDetonacionResumeLosImpactos() {
+        Jugador steve = new Jugador("Steve", 0, 64, 0);
+        Aldeano aldeano = new Aldeano(1, 64, 0, "Herrero");
+        aldeano.morir();
+        Explosion explosion = new Explosion(0, 64, 0, 3);
 
-        assertThrows(EntidadMuertaException.class,
-                () -> creeper.reemplazarCon(new Creeper(0, 64, 0)));
+        explosion.registrarDetonacion(List.of(
+                new Explosion.Impacto(steve, 0, 5),
+                new Explosion.Impacto(aldeano, 1, 20)));
+
+        assertTrue(explosion.isDetonada());
+        assertNotNull(explosion.getMomento());
+        assertEquals(2, explosion.getEntidadesAlcanzadas());
+        assertEquals(1, explosion.getEntidadesMuertas());
+        assertEquals(25, explosion.getDanoTotal());
     }
 }

@@ -8,12 +8,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 
-import py.edu.uc.lp3.exceptions.DatoInvalidoException;
-import py.edu.uc.lp3.exceptions.EntidadMuertaException;
-import py.edu.uc.lp3.exceptions.ReglaDelJuegoException;
-
 /**
  * Clase base que representa cualquier entidad del mundo del juego.
+ * <p>
+ * Solo guarda el estado encapsulado: no hay setters públicos y cada cambio
+ * pasa por un mensaje con nombre del juego ({@link #mover}, {@link #recibirDano},
+ * {@link #curar}...). Las validaciones, las reglas y las excepciones están
+ * en la capa {@code service}, que decide si el cambio se puede hacer antes de
+ * pedírselo a la entidad. Los métodos de esta clase no lanzan excepciones:
+ * mantienen la salud entre 0 y la salud máxima sin importar qué reciban.
  */
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -37,21 +40,6 @@ public abstract class Entidad {
 
     public Entidad(int salud, double posicionX, double posicionY,
                    double posicionZ, int velocidad) {
-
-        if (salud <= 0) {
-            throw new DatoInvalidoException("La salud debe ser mayor que cero.");
-        }
-
-        if (velocidad < 0) {
-            throw new DatoInvalidoException("La velocidad no puede ser negativa.");
-        }
-
-        if (!Double.isFinite(posicionX)
-                || !Double.isFinite(posicionY)
-                || !Double.isFinite(posicionZ)) {
-            throw new DatoInvalidoException("La posición debe contener valores válidos.");
-        }
-
         this.salud = salud;
         this.saludMaxima = salud;
         this.posicionX = posicionX;
@@ -62,46 +50,21 @@ public abstract class Entidad {
 
     /**
      * Desplaza la entidad en el plano horizontal (dx, dz), sin cambiar su
-     * altura. Es una sobrecarga util porque moverse en Minecraft casi nunca
+     * altura. Es una sobrecarga útil porque moverse en Minecraft casi nunca
      * cambia la coordenada Y.
      */
     public void mover(double dx, double dz) {
         mover(dx, 0, dz);
     }
 
-    /**
-     * Desplaza la entidad una cantidad (dx, dy, dz).
-     * La magnitud del desplazamiento no puede superar su velocidad.
-     */
+    /** Desplaza la entidad una cantidad (dx, dy, dz). */
     public void mover(double dx, double dy, double dz) {
-
-        if (!estaViva()) {
-            throw new EntidadMuertaException("Una entidad muerta no puede moverse.");
-        }
-
-        if (!Double.isFinite(dx) || !Double.isFinite(dy) || !Double.isFinite(dz)) {
-            throw new DatoInvalidoException("El desplazamiento debe contener valores válidos.");
-        }
-
-        double distancia = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-        if (distancia > velocidad + 1e-9) {
-            throw new ReglaDelJuegoException(
-                    "excede_velocidad",
-                    "La entidad no puede moverse más que su velocidad."
-            );
-        }
-
         posicionX += dx;
         posicionY += dy;
         posicionZ += dz;
     }
 
     public double distanciaA(Entidad otra) {
-        if (otra == null) {
-            throw new DatoInvalidoException("La otra entidad no puede ser nula.");
-        }
-
         double dx = otra.posicionX - posicionX;
         double dy = otra.posicionY - posicionY;
         double dz = otra.posicionZ - posicionZ;
@@ -109,58 +72,30 @@ public abstract class Entidad {
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
 
+    /**
+     * Resta salud. La cuenta se hace en {@code long} y se acota entre 0 y la
+     * salud máxima, así que la salud nunca queda negativa ni desborda.
+     */
     public void recibirDano(int cantidad) {
-
-        if (cantidad <= 0) {
-            throw new DatoInvalidoException(
-                    "La cantidad de daño debe ser mayor que cero."
-            );
-        }
-
-        if (!estaViva()) {
-            throw new EntidadMuertaException(
-                    "Una entidad muerta no puede recibir más daño."
-            );
-        }
-
-        salud = Math.max(0, salud - cantidad);
-
-        if (salud == 0) {
-            morir();
-        }
+        salud = acotar((long) salud - cantidad);
     }
 
+    /** Suma salud sin pasar de la salud máxima (la cuenta tampoco desborda). */
     public void curar(int cantidad) {
-
-        if (cantidad <= 0) {
-            throw new DatoInvalidoException(
-                    "La cantidad de curación debe ser mayor que cero."
-            );
-        }
-
-        if (!estaViva()) {
-            throw new EntidadMuertaException(
-                    "Una entidad muerta no puede ser curada."
-            );
-        }
-
-        // Comparar contra el faltante evita sumar: salud + cantidad puede
-        // desbordar int y dejar la salud en negativo, violando el
-        // invariante 0 <= salud <= saludMaxima.
-        int faltante = saludMaxima - salud;
-
-        salud = (cantidad >= faltante)
-                ? saludMaxima
-                : salud + cantidad;
+        salud = acotar((long) salud + cantidad);
     }
 
-    protected void morir() {
+    /** La entidad muere: su salud queda en 0. */
+    public void morir() {
         salud = 0;
-        System.out.println("La entidad ha muerto.");
     }
 
     public boolean estaViva() {
         return salud > 0;
+    }
+
+    private int acotar(long valor) {
+        return (int) Math.max(0, Math.min(saludMaxima, valor));
     }
 
     public int getSalud() {
@@ -193,32 +128,11 @@ public abstract class Entidad {
 
     /**
      * Reemplaza todo el estado de esta entidad por el de {@code nueva}
-     * (lo usa el PUT). No hay un setter por campo: {@code nueva} ya paso por
-     * un constructor, asi que sus valores cumplen los invariantes, y el id
-     * de esta entidad no cambia.
-     * <p>
-     * Reglas: no se puede cambiar de tipo (un zombie no pasa a ser jugador)
-     * y una entidad muerta no se edita, porque un PUT no es una forma de
-     * resucitar.
+     * (lo usa el PUT). No hay un setter por campo y el id de esta entidad no
+     * cambia. Que {@code nueva} sea del mismo tipo y que esta entidad siga
+     * viva lo verifica el servicio antes de llamar.
      */
     public final void reemplazarCon(Entidad nueva) {
-
-        if (nueva == null) {
-            throw new DatoInvalidoException("La entidad nueva no puede ser nula.");
-        }
-
-        if (nueva.getClass() != getClass()) {
-            throw new DatoInvalidoException(
-                    "cambio_de_tipo",
-                    "No se puede cambiar el tipo de una entidad: la entidad "
-                    + id + " es " + getClass().getSimpleName().toUpperCase() + ".");
-        }
-
-        if (!estaViva()) {
-            throw new EntidadMuertaException(
-                    "La entidad " + id + " está muerta: no se puede modificar.");
-        }
-
         copiarEstadoDe(nueva);
     }
 
