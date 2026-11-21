@@ -15,13 +15,48 @@ API REST en Spring Boot 4 / Java 21 que guarda el mundo de Minecraft en una base
 de dominio (`Amenaza`), una **simulación de explosiones de creeper** con dos
 reglas del juego y una jerarquía de excepciones con un *handler* HTTP por tipo.
 
+## Corrección de POO-08: observaciones cerradas
+
+POO-08 sacó 20/24 (documento «Corrección POO-08 - Irina Insfrán»). Tenía dos
+observaciones que restaban puntos y dos mejoras sugeridas. Todas quedaron cerradas:
+
+| # | Observación | Estado | Cómo se cerró |
+|---|---|---|---|
+| 2 | **Organización en paquetes (2/3):** el dominio lanzaba excepciones y tenía la lógica de negocio; las dos reglas vivían en `Creeper.elegirObjetivo`, `Creeper.explotarCercaDe` y `Explosion.detonar`. | Cerrada | Las validaciones, las reglas y las excepciones pasaron a la capa `service`. Las clases de `domain` solo guardan el estado encapsulado: ningún archivo de `domain` importa `py.edu.uc.lp3.exceptions` ni tiene un `throw` (se puede comprobar con `grep -rn "throw\|exceptions" src/main/java/py/edu/uc/lp3/domain`). El detalle, en la tabla de abajo. |
+| 8 | **Documentación (0/3):** más de tres errores de ortografía en el README, el Javadoc y los comentarios (`dia`, `polimorfico`, `Simulacion`, `explosion`, `nada en comun`, `le haria`, `esta lejos`...). | Cerrada | Se corrigieron los señalados y se revisó todo el texto entregado: README, bitácora, `docs/`, Javadoc, comentarios, mensajes de error, descripciones de OpenAPI y comentarios de `application.properties` y `log4j2-spring.xml`. La revisión se hizo con el diccionario de español (hunspell `es_PY`) y, para las palabras que llevan tilde según el sentido (esta/está, que/qué, como/cómo, más/mas, pasados como «quedó» o «aplicó»), leyendo cada caso. |
+| 8 | Mejora: frase suelta «Ahora un creeper se crea con POST /api/minecraft/entidades» debajo de la tabla de endpoints. | Cerrada | Se borró: los ejemplos de creación están en «Ejemplo: crear con el constructor completo o con el sobrecargado». |
+| 4 | Mejora: `HerramientaRotaException` no tenía handler propio. | Cerrada | `ManejadorErrores.herramientaRota` responde 422 con `error: herramienta_rota`, así el cliente la distingue de las demás reglas. |
+| 7 | Mejora: dos commits de documentación sin el prefijo `docs:`. | Cerrada en los commits nuevos | Esos commits ya están en `main` a través del pull request y reescribirlos cambiaría su hash. Todos los commits nuevos llevan su prefijo de *semantic commits* (`refactor:`, `docs:`, `feat:`, `test:`...). |
+
+**Adónde fue cada cosa que estaba en el dominio:**
+
+| Antes, en `domain` | Ahora, en `service.impl` |
+|---|---|
+| Validaciones de los constructores de `Entidad`, `EntidadHostil`, `Jugador`, `Creeper`, `Aldeano` (salud, velocidad, posición, rango, daño, mecha, nombre, profesión, experiencia) | `EntidadServiceImpl.validar`, que revisa la entidad recién construida en el POST y en el PUT |
+| Reglas del PUT en `Entidad.reemplazarCon` (no cambiar de tipo, no editar a un muerto) | `EntidadServiceImpl.validarReemplazo`; `reemplazarCon` solo copia el estado |
+| Regla 1, `Creeper.elegirObjetivo` / `puedeDetonarCerca` | `ReglasCreeperServiceImpl.mechaCorta` |
+| Regla 2, `Explosion.detonar` / `calcularDano` | `ReglasCreeperServiceImpl.ondaExpansiva` / `calcularDano`; `Explosion.registrarDetonacion` solo anota el resultado |
+| `Creeper.explotarCercaDe` / `explotar` | `ReglasCreeperServiceImpl.explotarCercaDe` / `explotar` |
+| `Entidad.mover`, `recibirDano`, `curar` con sus controles; `EntidadHostil.atacar`, `Jugador.atacar` (con arma), `EntidadPasiva.huir`, `Zombie.infectaAldeano`, `Aldeano.comercio`, `Animal.montar`, `Jugador.ganarExperiencia` | `AccionServiceImpl` (los mensajes del dominio quedan, pero sin validar ni lanzar: la salud se mantiene entre 0 y el máximo) |
+| `Herramienta.desgastar` / `verificarQueNoEsteRota`, `Espada.atacar`, `Hacha.atacar` / `talar`, `Pico.minar` / `puedeObtener` | `HerramientaServiceImpl` |
+| `Esqueleto.dispararFlecha`, `Jugador.construir` / `craftear` / `interactuar` (solo controlaban que estuviera vivo e imprimían) | Se quitaron: el control de que la entidad esté viva lo hace el servicio que la usa. |
+
+Las pruebas siguieron el mismo camino: las del dominio (`EntidadTest`,
+`SimulacionYProtocoloTest`, `HerramientaTest`) solo comprueban el estado, y
+las de reglas y excepciones están en `ReglasCreeperServiceImplTest`,
+`AccionServiceImplTest`, `HerramientaServiceImplTest`, `EntidadServiceImplTest`
+y `ExcepcionesTest`. La API responde igual que antes (mismos códigos y
+mensajes), salvo un cambio: en `GET /entidades/{id}/amenazas` el creeper ahora
+amenaza con su `danoAtaque` y no con el daño de la explosión, porque esa
+cuenta es la regla 2 y ya no está en el dominio.
+
 ## Cómo arrancar
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-Queda escuchando en `http://localhost:8080`. Los tests (82, con H2 en memoria
+Queda escuchando en `http://localhost:8080`. Los tests (91, con H2 en memoria
 para no tocar `./data`):
 
 ```bash
@@ -47,14 +82,14 @@ para no tocar `./data`):
 
 ## Paquetes
 
-Siguen el https://github.com/alefq/lp3-template-tp/tree/main/src/main/java/py/edu/uc/lp3
+Siguen el [template de la cátedra](https://github.com/alefq/lp3-template-tp/tree/main/src/main/java/py/edu/uc/lp3).
 
 | Paquete | Qué contiene |
 |---|---|
-| `py.edu.uc.lp3.domain` | Las clases del juego y sus reglas: `Entidad` y su familia, `Explosion`, `Herramienta`, las interfaces `Amenaza` y `Arma`. No conoce HTTP. |
+| `py.edu.uc.lp3.domain` | Las clases del juego, que **solo guardan el estado encapsulado**: `Entidad` y su familia, `Explosion`, `Herramienta`, las interfaces `Amenaza` y `Arma`. No validan, no lanzan excepciones y no aplican reglas. No conocen HTTP. |
 | `py.edu.uc.lp3.exceptions` | La jerarquía `MinecraftException` (en el template, `lp3exceptions`). |
 | `py.edu.uc.lp3.repository` | Interfaces de Spring Data: `EntidadRepository`, `ExplosionRepository`. Sin lógica. |
-| `py.edu.uc.lp3.service` / `service.impl` | Orquestan: buscan en el repositorio, le piden al dominio que actúe y guardan. |
+| `py.edu.uc.lp3.service` / `service.impl` | **Las validaciones, las reglas del juego y las excepciones**: `EntidadServiceImpl` (invariantes del CRUD), `ReglasCreeperServiceImpl` (las dos reglas de la simulación), `AccionServiceImpl` y `HerramientaServiceImpl` (moverse, atacar, infectar, usar herramientas...). También buscan en el repositorio y guardan. |
 | `py.edu.uc.lp3.rest.controller` | Entrada HTTP y `ManejadorErrores`. |
 | `py.edu.uc.lp3.constants` | `ApiPaths`, las URLs de la API. |
 | `py.edu.uc.lp3.dto` | Lo que entra y sale como JSON (`EntidadRequest`, `EntidadResponse`...). Está aparte para que el dominio no tenga anotaciones de Jackson. |
@@ -77,9 +112,6 @@ Base: `http://localhost:8080`. Todas las rutas están en `ApiPaths`.
 | `GET /api/minecraft/explosiones` | Historial de explosiones guardadas. | 200 |
 | `GET /api/minecraft/explosiones/{id}` | Una explosión, o 404. | 200 |
 
- Ahora un creeper se crea con
-`POST /api/minecraft/entidades`.
-
 ### Ejemplo: crear con el constructor completo o con el sobrecargado
 
 ```bash
@@ -97,20 +129,28 @@ del juego; si trae alguna, usa el constructor completo y todas son obligatorias.
 ## Las dos reglas de la simulación
 
 Participan tres clases persistidas: **`Creeper`**, **`Jugador`** y **`Explosion`**.
+Las reglas están en la capa de servicio, en `ReglasCreeperServiceImpl`; las
+tres clases solo guardan el estado.
 
-1. **Mecha corta** (`Creeper.elegirObjetivo`): un `Creeper` vivo solo enciende
-   la mecha si hay un `Jugador` vivo a 3 bloques o menos, y apunta al más
-   cercano; si no hay ninguno, no pasa nada (`FueraDeAlcanceException`).
-2. **Onda expansiva** (`Explosion.detonar`): al explotar el `Creeper` muere y
-   la `Explosion` (potencia 3, radio 6) le resta salud a **cada** entidad viva
-   del radio, más cuanto más cerca esté (fórmula de Minecraft Java: 43 en el
-   centro, 16 a 3 bloques, 0 a 6), y puede matarla.
+1. **Mecha corta** (`ReglasCreeperServiceImpl.mechaCorta`): un `Creeper` vivo
+   solo enciende la mecha si hay un `Jugador` vivo a 3 bloques o menos, y
+   apunta al más cercano; si no hay ninguno, no pasa nada
+   (`FueraDeAlcanceException`), y si el creeper ya está muerto, tampoco
+   (`EntidadMuertaException`).
+2. **Onda expansiva** (`ReglasCreeperServiceImpl.ondaExpansiva`): al explotar,
+   el `Creeper` muere y la `Explosion` (potencia 3, radio 6) le resta salud a
+   **cada** entidad viva del radio, más cuanto más cerca esté (fórmula de
+   Minecraft Java en `calcularDano`: 43 en el centro, 16 a 3 bloques, 0 a 6),
+   y puede matarla. Una explosión detona una sola vez
+   (`ReglaDelJuegoException`, código `explosion_ya_detonada`).
 
-`POST /api/minecraft/explosiones` llama a `Creeper.explotarCercaDe(jugadores, entidades)`,
-que aplica las dos reglas. El servicio solo busca en el repositorio y guarda:
-la salud nueva de cada entidad y una fila en `EXPLOSION` con quién la provocó,
-cuántas entidades alcanzó y mató, y el daño total. Todo va en una transacción:
-si una regla falla, no cambia nada.
+`POST /api/minecraft/explosiones` llega a `ExplosionServiceImpl`, que busca en
+el repositorio al creeper, a los jugadores vivos y a todas las entidades, y le
+pide a `ReglasCreeperServiceImpl.explotarCercaDe` que aplique las dos reglas.
+Después guarda la salud nueva de cada entidad y una fila en `EXPLOSION` con
+quién la provocó, cuántas entidades alcanzó y mató, y el daño total
+(`Explosion.registrarDetonacion`). Todo va en una transacción: si una regla
+falla, no cambia nada.
 
 ```json
 {
@@ -143,8 +183,9 @@ classDiagram
     class Arma {
         <<interface>>
         +getDanoAtaque() int
-        +atacar(Entidad objetivo)
+        +getDesgastePorGolpe() int
         +estaRota() boolean
+        +desgastar(int usos)
     }
 
     class Entidad {
@@ -162,24 +203,23 @@ classDiagram
         +mover(double dx, double dy, double dz)
         +recibirDano(int cantidad)
         +curar(int cantidad)
+        +morir()
         +reemplazarCon(Entidad nueva)
         #copiarEstadoDe(Entidad otra)
-        #morir()
         +estaViva() boolean
+        +distanciaA(Entidad otra) double
         +describirComportamiento()* String
     }
     class EntidadHostil {
         <<abstract>>
         -double rangoDeteccion
         -int danoAtaque
-        +atacar(Entidad objetivo)
         +danoContra(Entidad objetivo) int
         +describirAmenaza() String
     }
     class EntidadPasiva {
         <<abstract>>
         -boolean domesticable
-        +huir(Entidad amenaza)
     }
     class Jugador {
         -String nombre
@@ -187,7 +227,6 @@ classDiagram
         +Jugador(String nombre)
         +Jugador(String nombre, double x, double y, double z)
         +Jugador(int salud, double x, double y, double z, int velocidad, String nombre, int nivelEXP)
-        +atacar(Entidad objetivo, Arma arma)
         +ganarExperiencia(int cantidad)
         +describirComportamiento() String
     }
@@ -195,14 +234,11 @@ classDiagram
         -int tiempoExplosion
         +Creeper(double x, double y, double z)
         +Creeper(int salud, double x, double y, double z, int velocidad, double rango, int dano, int tiempoExplosion)
-        +elegirObjetivo(List~Jugador~ jugadores) Jugador
-        +explotarCercaDe(List~Jugador~ jugadores, List~Entidad~ alrededor) Explosion
-        +danoContra(Entidad objetivo) int
+        +describirAmenaza() String
         +describirComportamiento() String
     }
     class Zombie {
         +Zombie(double x, double y, double z)
-        +infectaAldeano(Aldeano aldeano)
         +describirComportamiento() String
     }
     class Esqueleto {
@@ -213,7 +249,7 @@ classDiagram
         -String profesion
         -boolean infectado
         +Aldeano(double x, double y, double z, String profesion)
-        ~infectar()
+        +infectar()
         +describirComportamiento() String
     }
     class Animal {
@@ -231,13 +267,15 @@ classDiagram
         -int entidadesMuertas
         -int danoTotal
         #Explosion()
-        +calcularDano(double distancia) int
-        +detonar(List~Entidad~ entidades) List~Impacto~
+        +Explosion(Creeper creeper, Jugador objetivo)
+        +getRadio() double
+        +registrarDetonacion(List~Impacto~ impactos)
     }
     class Herramienta {
         <<abstract>>
         -Material material
         -int durabilidad
+        +desgastar(int usos)
         +estaRota() boolean
         +describirUso()* String
     }
@@ -272,6 +310,28 @@ classDiagram
     class ExplosionService {
         <<interface>>
     }
+    class ReglasCreeperService {
+        <<interface>>
+        +mechaCorta(Creeper creeper, List~Jugador~ jugadores) Jugador
+        +ondaExpansiva(Explosion explosion, List~Entidad~ entidades) List~Impacto~
+        +calcularDano(Explosion explosion, double distancia) int
+        +explotarCercaDe(Creeper creeper, List~Jugador~ jugadores, List~Entidad~ alrededor) Explosion
+    }
+    class AccionService {
+        <<interface>>
+        +mover(Entidad entidad, double dx, double dz)
+        +mover(Entidad entidad, double dx, double dy, double dz)
+        +atacar(EntidadHostil atacante, Entidad objetivo)
+        +atacar(Jugador jugador, Entidad objetivo, Arma arma)
+        +huir(EntidadPasiva pasiva, Entidad amenaza)
+        +infectar(Zombie zombie, Aldeano aldeano)
+    }
+    class HerramientaService {
+        <<interface>>
+        +golpear(Arma arma, Entidad objetivo)
+        +talar(Hacha hacha)
+        +minar(Pico pico, Mineral mineral) boolean
+    }
 
     Entidad <|-- EntidadHostil
     Entidad <|-- EntidadPasiva
@@ -290,9 +350,6 @@ classDiagram
     Arma <|.. Espada
     Arma <|.. Hacha
 
-    Creeper ..> Explosion : crea al explotar
-    Explosion ..> Entidad : daña
-
     JpaRepository <|-- EntidadRepository
     JpaRepository <|-- ExplosionRepository
     EntidadRepository ..> Entidad : guarda
@@ -306,6 +363,10 @@ classDiagram
     AmenazaService ..> Amenaza : habla con
     ExplosionService ..> EntidadRepository
     ExplosionService ..> ExplosionRepository
+    ExplosionService ..> ReglasCreeperService : aplica las reglas
+    ReglasCreeperService ..> Creeper : mecha corta
+    ReglasCreeperService ..> Explosion : onda expansiva
+    AccionService ..> HerramientaService
 ```
 
 ### Jerarquía de excepciones y handlers
@@ -334,7 +395,7 @@ classDiagram
         handler: 422 fuera_de_alcance
     }
     class HerramientaRotaException {
-        sin handler propio: usa el de ReglaDelJuego
+        handler: 422 herramienta_rota
     }
     class ManejadorErrores {
         <<RestControllerAdvice>>
@@ -357,6 +418,7 @@ classDiagram
 | `ReglaDelJuegoException` | 422 | `regla_del_juego` | Los datos están bien pero el juego no lo permite: `solo_creepers_explotan`, `excede_velocidad`, `aldeano_infectado`, `explosion_ya_detonada`... |
 | `EntidadMuertaException` | 409 | `entidad_muerta` | Un muerto intenta actuar o se lo quiere editar |
 | `FueraDeAlcanceException` | 422 | `fuera_de_alcance` | El objetivo está lejos (ningún jugador a 3 bloques del creeper) |
+| `HerramientaRotaException` | 422 | `herramienta_rota` | Se quiere usar una herramienta con durabilidad 0 |
 
 Todas las respuestas de error tienen la misma forma:
 
@@ -366,7 +428,7 @@ Todas las respuestas de error tienen la misma forma:
 
 ## Qué hay que pensar — respuestas
 
-**Recurso y verbo.** 
+**Recurso y verbo.**
 Los sustantivos son `entidades` (el CRUD) y `explosiones`
 (la simulación). La URL nombra el recurso y el verbo dice la operación: no hay
 URLs como `/crearCreeper` ni `/detonar`. Detonar es *crear una explosión*, por
@@ -379,51 +441,62 @@ La clave es `id` (`Long`), la asigna H2 con
 `/api/minecraft/entidades/{id}`. `Entidad` no tiene `setId`: nadie fuera de
 JPA puede cambiar la identidad.
 
-**Herencia y tablas.** 
+**Herencia y tablas.**
 Elegí `SINGLE_TABLE`: toda la familia `Entidad` vive en
 la tabla `ENTIDAD` y la columna `TIPO_ENTIDAD` (`@DiscriminatorColumn`) dice la
-clase (`JUGADOR`, `CREEPER`...). 
+clase (`JUGADOR`, `CREEPER`...).
 En mi dominio la simulación necesita "todas
 las entidades cerca de la explosión" sin importar el tipo: con una sola tabla
 es un `SELECT` sin `JOIN`. El costo son columnas en `NULL` (un jugador no tiene
 `tiempoExplosion`), aceptable con siete clases chicas. `JOINED` obligaría a
 unir hasta tres tablas por entidad, y `TABLE_PER_CLASS` haría un `UNION` para
-listar. 
+listar.
 En el JSON el subtipo va en el campo `tipo`, al crear y al listar.
 No usé `@JsonTypeInfo` en `Entidad` a propósito: el dominio no tiene
 anotaciones de Jackson y no tiene constructor vacío público ni setters para
-que Jackson lo arme; el DTO `EntidadRequest` trae `tipo` y el servicio llama al
-constructor de la clase hija, que valida. `TipoEntidad` es el `enum` que hace
+que Jackson lo arme; el DTO `EntidadRequest` trae `tipo`, el servicio llama al
+constructor de la clase hija y después valida el objeto. `TipoEntidad` es el `enum` que hace
 de discriminador en el JSON.
 
 **Interfaz y repositorio.**
 `EntidadRepository extends JpaRepository<Entidad, Long>`
 es una interfaz; Spring genera la implementación. Los servicios dependen de ese
 tipo y los controllers dependen de interfaces de servicio (`EntidadService`...),
-no de clases concretas: si el dia de mañana cambio H2 por PostgreSQL, toco
+no de clases concretas: si el día de mañana cambio H2 por PostgreSQL, toco
 `application.properties` y la dependencia del driver en `pom.xml`; el dominio,
 los repositorios, los servicios y los controllers quedan quietos. Es la misma
 idea que el protocolo de POO-07: quien llama conoce el mensaje, no quién lo
 implementa.
 
-**Protocolo del dominio.** 
-`Amenaza` (`danoContra(Entidad)`,`describirAmenaza()`): algo que le puede hacer daño a una entidad.
-La implementan dos familias que no comparten padre: `EntidadHostil` (`Zombie`,
-`Esqueleto`, y `Creeper`, que la sobreescribe porque su peligro es la
-explosión) y `Arma` → `Espada`, `Hacha` (que son `Herramienta`). La usa
-`GET /api/minecraft/entidades/{id}/amenazas`: `AmenazaServiceImpl` arma una
-`List<Amenaza>` con los mobs hostiles guardados y, si se pide
-`?arma=ESPADA&material=DIAMANTE`, una espada; `AmenazasResponse` le pregunta a cada una sin saber de qué clase es.
+**Protocolo del dominio.**
+`Amenaza` (`danoContra(Entidad)`, `describirAmenaza()`): algo que le puede
+hacer daño a una entidad. Son consultas: no cambian a nadie ni lanzan
+excepciones. La implementan dos familias que no comparten padre:
+`EntidadHostil` (`Zombie`, `Esqueleto` y `Creeper`, que sobreescribe
+`describirAmenaza()` para avisar que explota) y `Arma` → `Espada`, `Hacha`
+(que son `Herramienta`). La usa `GET /api/minecraft/entidades/{id}/amenazas`:
+`AmenazaServiceImpl` arma una `List<Amenaza>` con los mobs hostiles guardados
+y, si se pide `?arma=ESPADA&material=DIAMANTE`, una espada; `AmenazasResponse`
+le pregunta a cada una sin saber de qué clase es. El daño de la explosión de
+un creeper no está en `danoContra`, porque es la regla 2 y vive en
+`ReglasCreeperServiceImpl`: acá el creeper amenaza con su `danoAtaque`, como
+cualquier mob hostil.
 
-**Ocultamiento.** 
-Las reglas numéricas las sostienen los constructores y los
-métodos del dominio (`salud > 0`, `velocidad >= 0`, posiciones finitas,
-`curar` sin desbordar, `tiempoExplosion > 0`, `Math.addExact` en la
-experiencia). El constructor vacío que pide JPA es `protected`: solo Hibernate
-(por reflexión) y las clases hijas lo usan; el resto del código tiene que pasar
-por un constructor de negocio. No hay setters públicos. El PUT no asigna
-campos: construye una entidad nueva (pasa por las validaciones) y llama a
-`reemplazarCon`, que además prohíbe cambiar de tipo o editar a un muerto.
+**Ocultamiento.**
+Los campos son privados y no hay setters públicos: el estado solo cambia por
+mensajes con nombre del juego (`mover`, `recibirDano`, `curar`, `morir`,
+`infectar`, `desgastar`...). Esos mensajes no validan ni lanzan excepciones,
+pero mantienen el estado coherente: la salud queda siempre entre 0 y la salud
+máxima (la cuenta se hace en `long`, así que no desborda) y la durabilidad no
+baja de 0. Las reglas numéricas (`salud > 0`, `velocidad >= 0`, posiciones
+finitas, `tiempoExplosion > 0`, daño y curación positivos, `Math.addExact` en
+la experiencia) las revisa la capa de servicio antes de crear o cambiar una
+entidad: `EntidadServiceImpl.validar` en el CRUD y `AccionServiceImpl` en las
+acciones. El constructor vacío que pide JPA es `protected`: solo Hibernate
+(por reflexión) y las clases hijas lo usan. El PUT no asigna campos:
+construye una entidad nueva, la valida igual que el POST, verifica que no
+cambie el tipo ni se edite a un muerto, y recién entonces llama a
+`reemplazarCon`.
 En Insomnia, «POST ilegal (salud negativa)» devuelve 400 y el siguiente
 «GET lista de entidades» muestra la misma cantidad que antes.
 
@@ -433,13 +506,14 @@ obligatorio omitido es un 400 (`campo_obligatorio`); los opcionales
 (`nivelEXP`, `domesticable`, `montable`) toman su valor por defecto, no el
 anterior. Si no se manda ninguna estadística se usan los valores del
 constructor sobrecargado. No hay `PATCH`: un cambio parcial del estado del
-juego (moverse, recibir daño) es un mensaje del dominio, no una edición.
+juego (moverse, recibir daño) es una acción con reglas (`AccionService`), no
+una edición.
 
-**DELETE.** 
+**DELETE.**
 Borrar es sacar a la entidad del mundo (como un *despawn*), no
 matarla: la fila se borra y la respuesta es 204; un `GET` posterior da 404.
-Morir es otra cosa: lo decide el dominio (`recibirDano` → `morir()`) y la
-entidad queda guardada con `viva: false`. Por eso `DELETE` no llama a un
+Morir es otra cosa: pasa cuando la salud llega a 0 (por ejemplo, por la onda
+expansiva) y la entidad queda guardada con `viva: false`. Por eso `DELETE` no llama a un
 mensaje del juego. Las explosiones guardan el `creeperId` como número y no como
 relación: borrar al creeper no borra la historia.
 
@@ -451,7 +525,7 @@ pierde salud. El recurso es `explosiones`; después de `POST
 salud ya guardada y `GET /api/minecraft/explosiones` el registro de la
 explosión.
 
-**Excepciones.** 
+**Excepciones.**
 La base es `MinecraftException` (abstracta) y las hijas
 llevan el nombre de la pregunta que falla: `DatoInvalidoException` (¿el dato
 tiene sentido?), `EntidadNoEncontradaException` (¿existe?) y
@@ -459,14 +533,15 @@ tiene sentido?), `EntidadNoEncontradaException` (¿existe?) y
 `EntidadMuertaException`, `FueraDeAlcanceException` y
 `HerramientaRotaException` como casos frecuentes de regla. Un id inexistente
 (404) y una regla incumplida (422/409) son tipos distintos. Cada tipo tiene su
-`@ExceptionHandler` en `ManejadorErrores`; Spring elige el más cercano, así
-que `HerramientaRotaException` usa el de su padre. El JSON lleva `error`
+`@ExceptionHandler` en `ManejadorErrores` (también `HerramientaRotaException`,
+para que el cliente la distinga de las demás reglas). El JSON lleva `error`
 (el tipo), `codigo` (el caso) y `mensaje`. Son **no comprobadas**
 (`RuntimeException`): un dato inválido no se puede arreglar en el método que
 llama, así que no tiene sentido obligar a cada servicio a declarar `throws`
 para dejarla pasar; además `@Transactional` hace *rollback* solo con las no
-comprobadas. Las lanza **el objeto del juego** (el constructor, `Creeper`,
-`Explosion`); el controller no lanza nada.
+comprobadas. Las lanza **la capa de servicio** (`EntidadServiceImpl`,
+`ReglasCreeperServiceImpl`, `AccionServiceImpl`, `HerramientaServiceImpl`...);
+ni el dominio ni el controller lanzan nada.
 
 ## Sobrecarga y sobreescritura
 
@@ -480,9 +555,12 @@ comprobadas. Las lanza **el objeto del juego** (el constructor, `Creeper`,
 | `Animal` | `(x, y, z)` y la completa | Animal de granja ni domesticable ni montable. *(Corrección de POO-06.)* |
 | `Creeper` | `(x, y, z)` y la completa | Desde POO-06. |
 | `Entidad.mover` | `mover(dx, dz)` y `mover(dx, dy, dz)` | Moverse en horizontal, delegando en la versión 3D. |
+| `AccionService.mover` | `mover(entidad, dx, dz)` y `mover(entidad, dx, dy, dz)` | Lo mismo, con la regla de la velocidad. |
+| `AccionService.atacar` | `atacar(hostil, objetivo)` y `atacar(jugador, objetivo, arma)` | Un mob ataca con su daño y su rango; un jugador, con un arma y a 3 bloques o menos. |
 
-Todas las firmas cortas delegan en la completa, así que validan lo mismo. En la
-API se ven con un `POST` sin estadísticas (`{"tipo":"ZOMBIE","posicionX":4,...}`).
+Todas las firmas cortas delegan en la completa, y `EntidadServiceImpl` valida
+la entidad que sale de cualquiera de los dos constructores. En la API se ven
+con un `POST` sin estadísticas (`{"tipo":"ZOMBIE","posicionX":4,...}`).
 El constructor vacío `protected` de cada clase es solo para JPA.
 
 ### Sobreescritura (la clase hija responde a su manera)
@@ -490,9 +568,9 @@ El constructor vacío `protected` de cada clase es solo para JPA.
 | Método | Dónde | Qué cambia |
 |---|---|---|
 | `describirComportamiento()` (abstracto en `Entidad`) | `Jugador`, `Creeper`, `Zombie`, `Esqueleto`, `Aldeano`, `Animal` | Cada tipo se describe; `GET /api/minecraft/comportamientos` recorre un `List<Entidad>` leído de H2 sin `if` por tipo. |
-| `danoContra(Entidad)` (de `Amenaza`) | `EntidadHostil`, sobreescrito en `Creeper`; default en `Arma` | El zombie pega su daño si está en rango; el creeper amenaza con su explosión; una espada rota no hace daño. |
+| `danoContra(Entidad)` (de `Amenaza`) | `EntidadHostil`; default en `Arma` | El zombie pega su daño si está en rango; una espada rota no hace daño. |
+| `describirAmenaza()` (de `Amenaza`) | `EntidadHostil`, sobreescrito en `Creeper`; `Espada`, `Hacha` | Cada amenaza dice cómo hace daño; el creeper avisa que explota. |
 | `copiarEstadoDe(Entidad)` | cada clase de la familia | Cada clase copia sus campos y llama a `super`; lo usa el PUT. |
-| `atacar(Entidad)` | `Creeper` | Llama a `super.atacar` y además explota. |
 | `describirUso()` (abstracto en `Herramienta`) | `Espada`, `Hacha`, `Pico` | Cada herramienta cuenta para qué sirve. |
 
 ## Colección Insomnia

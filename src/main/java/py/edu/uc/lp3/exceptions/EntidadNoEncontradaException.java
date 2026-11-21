@@ -1,7 +1,7 @@
 package py.edu.uc.lp3.exceptions;
 
 /**
- * Se busca algo del mundo por id (una entidad o una explosion ya ocurrida)
+ * Se busca algo del mundo por id (una entidad o una explosión ya ocurrida)
  * y no existe.
  */
 public class EntidadNoEncontradaException extends MinecraftException {

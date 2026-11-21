@@ -13,13 +13,13 @@ public final class ApiPaths {
 	/** Recurso del CRUD: la familia Entidad. */
 	public static final String ENTIDADES = BASE_API + "/entidades";
 
-	/** Protocolo Amenaza: quien puede dañar a la entidad {id}. */
+	/** Protocolo Amenaza: quién puede dañar a la entidad {id}. */
 	public static final String AMENAZAS = ENTIDADES + "/{id}/amenazas";
 
-	/** Comportamiento polimorfico de las entidades guardadas. */
+	/** Comportamiento polimórfico de las entidades guardadas. */
 	public static final String COMPORTAMIENTOS = BASE_API + "/comportamientos";
 
-	/** Simulacion: crear una explosion la detona; el historial queda guardado. */
+	/** Simulación: crear una explosión la detona; el historial queda guardado. */
 	public static final String EXPLOSIONES = BASE_API + "/explosiones";
 
 	private ApiPaths() {

@@ -5,7 +5,7 @@ import java.util.List;
 import py.edu.uc.lp3.domain.Explosion;
 
 /**
- * Simulacion de explosiones de creeper sobre las entidades guardadas.
+ * Simulación de explosiones de creeper sobre las entidades guardadas.
  */
 public interface ExplosionService {
 

@@ -18,7 +18,7 @@ import py.edu.uc.lp3.dto.ExplosionResponse;
 import py.edu.uc.lp3.service.ExplosionService;
 
 /**
- * Simulacion de explosiones. El recurso es la explosion: un POST crea una
+ * Simulación de explosiones. El recurso es la explosión: un POST crea una
  * (y con eso el creeper muere y las entidades cercanas pierden salud), y los
  * GET leen el historial guardado en H2.
  */

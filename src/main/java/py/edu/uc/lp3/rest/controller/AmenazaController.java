@@ -12,8 +12,8 @@ import py.edu.uc.lp3.dto.TipoArma;
 import py.edu.uc.lp3.service.AmenazaService;
 
 /**
- * Endpoint de lectura del protocolo {@code Amenaza}: ¿quien le puede hacer
- * daño a la entidad {id} y cuanto? Opcionalmente suma un arma
+ * Endpoint de lectura del protocolo {@code Amenaza}: ¿quién le puede hacer
+ * daño a la entidad {id} y cuánto? Opcionalmente suma un arma
  * ({@code ?arma=ESPADA&material=DIAMANTE}) para mezclar en la misma lista
  * mobs y herramientas.
  */

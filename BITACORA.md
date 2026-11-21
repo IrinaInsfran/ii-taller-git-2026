@@ -1,7 +1,7 @@
 # Bitácora de uso de asistentes de IA
 
 Esta bitácora registra qué asistente de IA se usó, con qué modelo exacto y para
-qué, en los ejercicios POO-06 a POO-08 de este repositorio. Las decisiones de
+qué, en los ejercicios POO-06 a POO-09 de este repositorio. Las decisiones de
 diseño y el código entregado son responsabilidad de la autora; el asistente se
 usó como revisor, redactor y para escribir código que la autora revisó.
 
@@ -13,6 +13,34 @@ usó como revisor, redactor y para escribir código que la autora revisó.
 | 2026-10-04 | Claude (Anthropic), en la app claude.ai | Claude Opus 5.5 (`claude-opus-5-5`) | POO-06 | Revisión de la rama contra el enunciado y la rúbrica antes del merge; redacción de esta bitácora y de la sección del README sobre sobrecarga y sobreescritura. |
 | Octubre 2026 | Claude (Anthropic) | Claude Opus 5.5 (`claude-opus-5-5`) | POO-07 / POO-08 | Interfaz `Arma` y familia `Herramienta`; primera versión de H2, CRUD de entidades, `Explosion`, jerarquía de excepciones y sus tests. |
 | 2026-11-10 | Claude Code (Anthropic), app de escritorio | Claude Opus 5.5 (`claude-opus-5-5`) | POO-08 | Corregir el trabajo práctico con las correcciones enviadas por el profesor. |
+| 2026-11-19 al 2026-11-21 | Claude Code (Anthropic), app de escritorio | Claude Opus 5.5 (`claude-opus-5-5`) | POO-09 | Cerrar las observaciones de la corrección de POO-08 (reglas y excepciones fuera del dominio, ortografía). |
+
+## Resumen de prompts — sesión del 2026-11-19 al 2026-11-21 (Claude Code, Claude Opus 5.5)
+
+1. **Pedido inicial.** Se pegó la consigna de POO-09 (APIs cruzadas entre A1,
+   A2 y A3) y se adjuntó el PDF con la corrección de POO-08 (20/24: 2/3 en
+   organización en paquetes y 0/3 en documentación). El asistente leyó la
+   corrección, el enunciado, la página de grupos y el ejemplo UNO, y resumió
+   qué faltaba antes de tocar nada.
+2. **Corrección de POO-08, criterio 2.** Se pidió empezar por la corrección.
+   El asistente sacó del dominio las validaciones, las dos reglas y las
+   excepciones:
+   - creó `ReglasCreeperServiceImpl` (mecha corta y onda expansiva),
+     `AccionServiceImpl` (moverse, atacar, huir, infectar, comerciar, montar,
+     experiencia) y `HerramientaServiceImpl` (golpear, talar, minar);
+   - pasó las validaciones de los constructores a `EntidadServiceImpl.validar`
+     y las reglas del PUT a `EntidadServiceImpl.validarReemplazo`;
+   - dejó las clases de `domain` con estado privado, sin setters públicos y
+     con mensajes que no lanzan excepciones (la salud se acota entre 0 y el
+     máximo);
+   - movió las pruebas de reglas a `service.impl` (118 tests, todos pasan) y
+     le dio a `HerramientaRotaException` su propio handler.
+3. **Corrección de POO-08, criterio 8.** Revisó la ortografía de README,
+   bitácora, `docs/`, Javadoc, comentarios, mensajes y descripciones de
+   OpenAPI con el diccionario `es_PY` de hunspell y leyendo a mano las
+   palabras que llevan tilde según el sentido; borró la frase suelta del
+   README y agregó la sección «Corrección de POO-08» con cada observación y
+   cómo se cerró.
 
 ## Resumen de prompts — sesión del 2026-11-10 (Claude Code, Claude Opus 5.5)
 

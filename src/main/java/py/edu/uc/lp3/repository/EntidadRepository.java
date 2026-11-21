@@ -14,8 +14,8 @@ import py.edu.uc.lp3.domain.Jugador;
 /**
  * Persistencia de toda la familia {@link Entidad} (una sola tabla).
  * <p>
- * Es una interfaz: aca solo se declaran los mensajes; Spring Data genera la
- * implementacion. Las consultas extra salen del juego: jugadores con nombre
+ * Es una interfaz: acá solo se declaran los mensajes; Spring Data genera la
+ * implementación. Las consultas extra salen del juego: jugadores con nombre
  * repetido, jugadores vivos (los que pueden encender a un creeper) y mobs
  * hostiles vivos (las amenazas del mundo).
  */
@@ -24,8 +24,8 @@ public interface EntidadRepository extends JpaRepository<Entidad, Long> {
 
 	/**
 	 * Indica si ya hay otro jugador con ese nombre (sin distinguir
-	 * mayusculas). {@code idExcluido} permite ignorar al propio jugador
-	 * cuando se lo esta actualizando; en una alta se pasa null.
+	 * mayúsculas). {@code idExcluido} permite ignorar al propio jugador
+	 * cuando se lo está actualizando; en una alta se pasa null.
 	 */
 	@Query("""
 			select count(j) > 0 from Jugador j

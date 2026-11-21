@@ -21,7 +21,7 @@ import py.edu.uc.lp3.service.EntidadService;
 
 /**
  * CRUD REST de entidades. Solo traduce HTTP a llamadas al servicio y
- * entidades a {@link EntidadResponse}; las reglas estan en el servicio.
+ * entidades a {@link EntidadResponse}; las reglas están en el servicio.
  */
 @RestController
 @RequestMapping(ApiPaths.ENTIDADES)

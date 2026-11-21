@@ -1,7 +1,7 @@
 package py.edu.uc.lp3.domain;
 
 /**
- * Minerales que se pueden picar y el material minimo de pico que exigen
+ * Minerales que se pueden picar y el material mínimo de pico que exigen
  * para soltar algo (por ejemplo, el diamante necesita pico de hierro).
  */
 public enum Mineral {
