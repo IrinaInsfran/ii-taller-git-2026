@@ -21,7 +21,7 @@ import reactor.core.publisher.Mono;
 /**
  * Habla con la API Minecraft de Ceci. La URL no está en el código: sale de
  * {@code mundo-ceci.base-url}, que a su vez toma la variable de entorno
- * {@code MUNDO_CECI_URL} (por defecto {@code http://localhost:8081}).
+ * {@code MUNDO_CECI_URL} (por defecto {@code http://localhost:8083}).
  */
 @Component
 public class MundoCeciClient {

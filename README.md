@@ -56,7 +56,7 @@ cuenta es la regla 2 y ya no está en el dominio.
 ./mvnw spring-boot:run
 ```
 
-Queda escuchando en `http://localhost:8080`. Los tests (118, con H2 en memoria
+Queda escuchando en `http://localhost:8082`. Los tests (123, con H2 en memoria
 para no tocar `./data`):
 
 ```bash
@@ -76,7 +76,7 @@ para no tocar `./data`):
 | `spring.h2.console.path` | `/h2-console` | Dónde se abre la consola. |
 | `spring.h2.console.settings.web-allow-others` | `true` | Permite abrir la consola desde otra máquina (uso el navegador de Windows con la app en una VM). Solo para desarrollo. |
 
-**Consola H2:** `http://localhost:8080/h2-console` → JDBC URL
+**Consola H2:** `http://localhost:8082/h2-console` → JDBC URL
 `jdbc:h2:file:./data/entidades`, usuario `sa`, sin clave. Se ven las tablas
 `ENTIDAD` (toda la familia, con la columna `TIPO_ENTIDAD`) y `EXPLOSION`.
 
@@ -96,7 +96,7 @@ Siguen el [template de la cátedra](https://github.com/alefq/lp3-template-tp/tre
 
 ## Endpoints
 
-Base: `http://localhost:8080`. Todas las rutas están en `ApiPaths`.
+Base: `http://localhost:8082` (el puerto se cambia con la variable `PORT`). Todas las rutas están en `ApiPaths`.
 
 | Verbo y URL | Qué hace | Éxito |
 |---|---|---|
@@ -115,6 +115,33 @@ Base: `http://localhost:8080`. Todas las rutas están en `ApiPaths`.
 | `POST /api/minecraft/flechazos` (`{"esqueletoId": 1, "objetivoId": 2}`) | **Integración con otro proyecto**: el esqueleto le dispara al objetivo. Si la flecha llega lo decide la API Minecraft remota (`GET /esqueleto/disparar`, rango 8); el daño (`danoAtaque`) y la muerte los aplica este proyecto. | 200 (502 si la API remota falla) |
 | `GET /api/externo/objetos[?id=3&id=5]` | Objetos de [restful-api.dev](https://api.restful-api.dev/objects), consultados con **WebClient**. | 200 (502 si la API externa falla) |
 | `GET /api/externo/objetos/{id}` | Un objeto externo, o 404. | 200 |
+| `POST /api/minecraft/reglas/mecha-corta` | **Regla publicada para otros servicios (POO-09)**: dice si el creeper detona y a qué jugador apunta. No lee ni guarda nada en H2. Detalle abajo. | 200 (409 creeper muerto, 422 nadie cerca) |
+
+### Regla «mecha corta» para otros servicios
+
+`POST /api/minecraft/reglas/mecha-corta` aplica la regla 1 (`ReglasCreeperServiceImpl.mechaCorta`)
+sobre entidades armadas en memoria con los datos del cuerpo. El cuerpo es el mismo que el
+`/explosiones/validar` de Sol, así se puede reutilizar: los campos de más (`tiempoExplosion`,
+`tiempoTranscurrido`, `radioExplosion`) se aceptan y se ignoran.
+
+```json
+{
+  "saludCreeper": 20,
+  "creeper": {"x": 0, "y": 64, "z": 0},
+  "objetivos": [
+    {"tipo": "jugador", "salud": 20, "posicion": {"x": 2, "y": 64, "z": 0}},
+    {"tipo": "aldeano", "salud": 20, "posicion": {"x": 1, "y": 64, "z": 0}}
+  ]
+}
+```
+
+- Solo cuentan los objetivos de `tipo` «jugador» (sin importar mayúsculas) con `salud` mayor que 0.
+  Si falta `salud` o `saludCreeper`, la entidad se considera viva.
+- **200**: `{"aceptada": true, "regla": "mecha-corta", "objetivo": 0, "distancia": 2.0, "mensaje": "..."}`,
+  donde `objetivo` es la posición en la lista del jugador más cercano.
+- **422 `fuera_de_alcance`**: ningún jugador vivo a 3 bloques o menos.
+- **409 `entidad_muerta`**: `saludCreeper` es 0 o menos.
+- **400 `dato_invalido`**: falta `creeper`, la lista `objetivos` está vacía o falta alguna coordenada.
 
 ### URLs de las APIs externas (externalizables)
 
@@ -123,12 +150,12 @@ si no está definida, usa un valor por defecto.
 
 | Propiedad | Variable de entorno | Por defecto | La usa |
 |---|---|---|---|
-| `mundo-ceci.base-url` | `MUNDO_CECI_URL` | `http://localhost:8081` | Portal |
+| `mundo-ceci.base-url` | `MUNDO_CECI_URL` | `http://localhost:8083` | Portal |
 | `minecraft-remoto.base-url` | `MINECRAFT_REMOTO_URL` | `http://10.40.142.132:8080` | Flechazos |
 | `restful-api.base-url` | — | `https://api.restful-api.dev` | Objetos externos |
 
 ```bash
-MUNDO_CECI_URL=http://192.168.1.50:8081 ./mvnw spring-boot:run
+MUNDO_CECI_URL=http://192.168.1.50:8083 ./mvnw spring-boot:run
 ```
 
 ### Logs de integración (Log4j2)
@@ -150,18 +177,18 @@ Con la app levantada, todos los endpoints quedan documentados. La
 especificación la genera [springdoc-openapi](https://springdoc.org/) a partir
 de los controllers y sus anotaciones `@Tag`, `@Operation` y `@ApiResponse`:
 
-- **Swagger UI:** `http://localhost:8080/swagger-ui.html` — permite probar cada endpoint con *Try it out*.
-- **Especificación OpenAPI (JSON):** `http://localhost:8080/v3/api-docs`.
+- **Swagger UI:** `http://localhost:8082/swagger-ui.html` — permite probar cada endpoint con *Try it out*.
+- **Especificación OpenAPI (JSON):** `http://localhost:8082/v3/api-docs`.
 
 Los errores se documentan con el esquema `ErrorResponse` (`error`, `codigo`, `mensaje`).
 
 ### Ejemplo: crear con el constructor completo o con el sobrecargado
 
 ```bash
-curl -X POST localhost:8080/api/minecraft/entidades -H "Content-Type: application/json" \
+curl -X POST localhost:8082/api/minecraft/entidades -H "Content-Type: application/json" \
   -d '{"tipo":"JUGADOR","salud":20,"posicionX":0,"posicionY":64,"posicionZ":0,"velocidad":4,"nombre":"Steve","nivelEXP":5}'
 
-curl -X POST localhost:8080/api/minecraft/entidades -H "Content-Type: application/json" \
+curl -X POST localhost:8082/api/minecraft/entidades -H "Content-Type: application/json" \
   -d '{"tipo":"CREEPER","posicionX":3,"posicionY":64,"posicionZ":0}'
 ```
 
@@ -636,7 +663,7 @@ Archivo: [`insomnia/minecraft-poo08-insomnia.json`](insomnia/minecraft-poo08-ins
 2. En Insomnia: **Import** (o *Create → Import From → File*) y elegir el
    archivo. Aparece la colección «Minecraft POO-08 (Irina Insfrán)».
 3. Elegir el entorno **Local**. En el *Base Environment* están `baseUrl`
-   (`http://localhost:8080`) y los ids que usan los pedidos: `jugadorId` 1,
+   (`http://localhost:8082`) y los ids que usan los pedidos: `jugadorId` 1,
    `creeperId` 2, `creeperLejosId` 5, `vacaId` 6. Si la base ya tenía datos,
    copiar los ids que devuelvan los `POST` a esas variables.
 4. Recorrer las carpetas en orden:

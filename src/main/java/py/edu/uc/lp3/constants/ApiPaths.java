@@ -22,6 +22,12 @@ public final class ApiPaths {
 	/** Simulación: crear una explosión la detona; el historial queda guardado. */
 	public static final String EXPLOSIONES = BASE_API + "/explosiones";
 
+	/** Reglas que otros servicios consultan por HTTP; no leen ni guardan en H2 (POO-09). */
+	public static final String REGLAS = BASE_API + "/reglas";
+
+	/** Regla «mecha corta»: el creeper solo detona con un jugador vivo a 3 bloques o menos. */
+	public static final String REGLA_MECHA_CORTA = REGLAS + "/mecha-corta";
+
 	/** La entidad {id} viaja al mundo Minecraft de Ceci. */
 	public static final String PORTAL = ENTIDADES + "/{id}/portal";
 

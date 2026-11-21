@@ -18,7 +18,7 @@
       "parentId": "wrk_minecraft_poo08",
       "name": "Base Environment",
       "data": {
-        "baseUrl": "http://localhost:8080",
+        "baseUrl": "http://localhost:8082",
         "jugadorId": 1,
         "creeperId": 2,
         "creeperLejosId": 5,
@@ -33,7 +33,7 @@
       "parentId": "env_base",
       "name": "Local",
       "data": {
-        "baseUrl": "http://localhost:8080"
+        "baseUrl": "http://localhost:8082"
       },
       "isPrivate": false,
       "metaSortKey": 1

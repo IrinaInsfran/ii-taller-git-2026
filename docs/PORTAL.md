@@ -69,7 +69,7 @@ Respuesta:
   "entidadId": 1,
   "tipo": "JUGADOR",
   "conservadaEnEsteMundo": false,
-  "mundoDestino": "http://localhost:8081",
+  "mundoDestino": "http://localhost:8083",
   "entidadEnDestino": {
     "id": 42, "tipo": "Jugador", "nombre": "Steve",
     "vida": 20, "vidaMaxima": 20, "x": 1.0, "y": 64.0, "z": 2.0,
