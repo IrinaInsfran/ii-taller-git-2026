@@ -1,7 +1,5 @@
 package py.edu.uc.lp3.rest.controller;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import py.edu.uc.lp3.dto.ErrorResponse;
 import py.edu.uc.lp3.exceptions.DatoInvalidoException;
 import py.edu.uc.lp3.exceptions.EntidadMuertaException;
 import py.edu.uc.lp3.exceptions.EntidadNoEncontradaException;
@@ -41,49 +40,49 @@ import py.edu.uc.lp3.exceptions.ReglaDelJuegoException;
 public class ManejadorErrores {
 
     @ExceptionHandler(DatoInvalidoException.class)
-    public ResponseEntity<Map<String, String>> datoInvalido(
+    public ResponseEntity<ErrorResponse> datoInvalido(
             DatoInvalidoException excepcion) {
 
         return construir(HttpStatus.BAD_REQUEST, "dato_invalido", excepcion);
     }
 
     @ExceptionHandler(EntidadNoEncontradaException.class)
-    public ResponseEntity<Map<String, String>> entidadNoEncontrada(
+    public ResponseEntity<ErrorResponse> entidadNoEncontrada(
             EntidadNoEncontradaException excepcion) {
 
         return construir(HttpStatus.NOT_FOUND, "no_encontrada", excepcion);
     }
 
     @ExceptionHandler(EntidadMuertaException.class)
-    public ResponseEntity<Map<String, String>> entidadMuerta(
+    public ResponseEntity<ErrorResponse> entidadMuerta(
             EntidadMuertaException excepcion) {
 
         return construir(HttpStatus.CONFLICT, "entidad_muerta", excepcion);
     }
 
     @ExceptionHandler(FueraDeAlcanceException.class)
-    public ResponseEntity<Map<String, String>> fueraDeAlcance(
+    public ResponseEntity<ErrorResponse> fueraDeAlcance(
             FueraDeAlcanceException excepcion) {
 
         return construir(HttpStatus.UNPROCESSABLE_CONTENT, "fuera_de_alcance", excepcion);
     }
 
     @ExceptionHandler(HerramientaRotaException.class)
-    public ResponseEntity<Map<String, String>> herramientaRota(
+    public ResponseEntity<ErrorResponse> herramientaRota(
             HerramientaRotaException excepcion) {
 
         return construir(HttpStatus.UNPROCESSABLE_CONTENT, "herramienta_rota", excepcion);
     }
 
     @ExceptionHandler(ReglaDelJuegoException.class)
-    public ResponseEntity<Map<String, String>> reglaDelJuego(
+    public ResponseEntity<ErrorResponse> reglaDelJuego(
             ReglaDelJuegoException excepcion) {
 
         return construir(HttpStatus.UNPROCESSABLE_CONTENT, "regla_del_juego", excepcion);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<Map<String, String>> cuerpoIlegible(
+    public ResponseEntity<ErrorResponse> cuerpoIlegible(
             HttpMessageNotReadableException excepcion) {
 
         return construir(HttpStatus.BAD_REQUEST, "dato_invalido", "json_invalido",
@@ -92,7 +91,7 @@ public class ManejadorErrores {
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<Map<String, String>> parametroInvalido(
+    public ResponseEntity<ErrorResponse> parametroInvalido(
             MethodArgumentTypeMismatchException excepcion) {
 
         return construir(HttpStatus.BAD_REQUEST, "dato_invalido", "parametro_invalido",
@@ -100,7 +99,7 @@ public class ManejadorErrores {
                 + excepcion.getName() + "'.");
     }
 
-    private ResponseEntity<Map<String, String>> construir(
+    private ResponseEntity<ErrorResponse> construir(
             HttpStatus estado,
             String error,
             MinecraftException excepcion) {
@@ -108,17 +107,14 @@ public class ManejadorErrores {
         return construir(estado, error, excepcion.getCodigo(), excepcion.getMessage());
     }
 
-    private ResponseEntity<Map<String, String>> construir(
+    private ResponseEntity<ErrorResponse> construir(
             HttpStatus estado,
             String error,
             String codigo,
             String mensaje) {
 
-        // LinkedHashMap para que las claves salgan siempre en el mismo orden
-        Map<String, String> cuerpo = new LinkedHashMap<>();
-        cuerpo.put("error", error);
-        cuerpo.put("codigo", codigo);
-        cuerpo.put("mensaje", mensaje == null ? "" : mensaje);
+        // Un record sale en JSON con sus campos en el orden declarado: error, código, mensaje.
+        ErrorResponse cuerpo = new ErrorResponse(error, codigo, mensaje == null ? "" : mensaje);
 
         return ResponseEntity.status(estado).body(cuerpo);
     }

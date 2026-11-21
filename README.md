@@ -56,7 +56,7 @@ cuenta es la regla 2 y ya no está en el dominio.
 ./mvnw spring-boot:run
 ```
 
-Queda escuchando en `http://localhost:8080`. Los tests (91, con H2 en memoria
+Queda escuchando en `http://localhost:8080`. Los tests (94, con H2 en memoria
 para no tocar `./data`):
 
 ```bash
@@ -111,6 +111,17 @@ Base: `http://localhost:8080`. Todas las rutas están en `ApiPaths`.
 | `POST /api/minecraft/explosiones` (`{"creeperId": 2}`) | **Simulación**: el creeper intenta explotar. | 201 + `Location` |
 | `GET /api/minecraft/explosiones` | Historial de explosiones guardadas. | 200 |
 | `GET /api/minecraft/explosiones/{id}` | Una explosión, o 404. | 200 |
+
+### Documentación OpenAPI / Swagger UI
+
+Con la app levantada, todos los endpoints quedan documentados. La
+especificación la genera [springdoc-openapi](https://springdoc.org/) a partir
+de los controllers y sus anotaciones `@Tag`, `@Operation` y `@ApiResponse`:
+
+- **Swagger UI:** `http://localhost:8080/swagger-ui.html` — permite probar cada endpoint con *Try it out*.
+- **Especificación OpenAPI (JSON):** `http://localhost:8080/v3/api-docs`.
+
+Los errores se documentan con el esquema `ErrorResponse` (`error`, `codigo`, `mensaje`).
 
 ### Ejemplo: crear con el constructor completo o con el sobrecargado
 
