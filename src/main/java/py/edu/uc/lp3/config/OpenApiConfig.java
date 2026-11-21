@@ -30,7 +30,8 @@ public class OpenApiConfig {
 						.version("0.0.1-SNAPSHOT")
 						.description("""
 								CRUD de entidades de Minecraft guardadas en H2, protocolo `Amenaza`, \
-								comportamientos polimórficos y simulación de explosiones.
+								comportamientos polimórficos, simulación de explosiones y consulta \
+								de objetos de la API externa restful-api.dev con WebClient.
 
 								Los errores siempre responden `{"error", "codigo", "mensaje"}`.""")
 						.contact(new Contact().name("Irina"))

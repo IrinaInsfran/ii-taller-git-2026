@@ -56,7 +56,7 @@ cuenta es la regla 2 y ya no está en el dominio.
 ./mvnw spring-boot:run
 ```
 
-Queda escuchando en `http://localhost:8080`. Los tests (94, con H2 en memoria
+Queda escuchando en `http://localhost:8080`. Los tests (118, con H2 en memoria
 para no tocar `./data`):
 
 ```bash
@@ -111,6 +111,38 @@ Base: `http://localhost:8080`. Todas las rutas están en `ApiPaths`.
 | `POST /api/minecraft/explosiones` (`{"creeperId": 2}`) | **Simulación**: el creeper intenta explotar. | 201 + `Location` |
 | `GET /api/minecraft/explosiones` | Historial de explosiones guardadas. | 200 |
 | `GET /api/minecraft/explosiones/{id}` | Una explosión, o 404. | 200 |
+| `POST /api/minecraft/entidades/{id}/portal[?conservar=true]` | **Integración con el proyecto de Ceci**: la entidad viaja a su mundo (`POST /entidades`). Acá se valida que esté viva y sea JUGADOR, ZOMBIE o CREEPER; allá sus reglas deciden si la aceptan (nombre único, vida ≤ vidaMaxima...). Si entra, sale de este mundo salvo `conservar=true`. Secuencia en [docs/PORTAL.md](docs/PORTAL.md). | 200 (422 si la rechazan, 502 si no responde) |
+| `POST /api/minecraft/flechazos` (`{"esqueletoId": 1, "objetivoId": 2}`) | **Integración con otro proyecto**: el esqueleto le dispara al objetivo. Si la flecha llega lo decide la API Minecraft remota (`GET /esqueleto/disparar`, rango 8); el daño (`danoAtaque`) y la muerte los aplica este proyecto. | 200 (502 si la API remota falla) |
+| `GET /api/externo/objetos[?id=3&id=5]` | Objetos de [restful-api.dev](https://api.restful-api.dev/objects), consultados con **WebClient**. | 200 (502 si la API externa falla) |
+| `GET /api/externo/objetos/{id}` | Un objeto externo, o 404. | 200 |
+
+### URLs de las APIs externas (externalizables)
+
+Ninguna URL está fija en el código: cada una sale de una propiedad que toma una variable de entorno y,
+si no está definida, usa un valor por defecto.
+
+| Propiedad | Variable de entorno | Por defecto | La usa |
+|---|---|---|---|
+| `mundo-ceci.base-url` | `MUNDO_CECI_URL` | `http://localhost:8081` | Portal |
+| `minecraft-remoto.base-url` | `MINECRAFT_REMOTO_URL` | `http://10.40.142.132:8080` | Flechazos |
+| `restful-api.base-url` | — | `https://api.restful-api.dev` | Objetos externos |
+
+```bash
+MUNDO_CECI_URL=http://192.168.1.50:8081 ./mvnw spring-boot:run
+```
+
+### Logs de integración (Log4j2)
+
+El proyecto usa **Log4j2** en lugar de Logback (`src/main/resources/log4j2-spring.xml`).
+Todo loguea en INFO, salvo las clases que hablan con otros servicios, que loguean cada paso
+en **DEBUG** por consola y en `logs/integracion.log`:
+
+- `WebClientLogFilter`: cada pedido HTTP saliente (`[mundo-ceci] --> POST ...`, `<-- 200 ... (35 ms)`),
+  y en WARN los errores de conexión y los timeouts.
+- `MundoCeciClient`, `MinecraftRemotoClient`: qué se manda y qué se recibe.
+- `PortalServiceImpl`, `FlechazoServiceImpl`, `ObjetoExternoServiceImpl`: los pasos de cada caso de uso.
+
+Para bajar el nivel sin tocar el XML: `LOGGING_LEVEL_PY_EDU_UC_LP3_CLIENT=INFO ./mvnw spring-boot:run`.
 
 ### Documentación OpenAPI / Swagger UI
 
@@ -181,6 +213,10 @@ Flechas: `<|--` **herencia**, `<|..` **implementación de interfaz**,
 `..>` **uso** (el controller usa el servicio, el servicio usa el repositorio,
 el repositorio guarda la entidad). La jerarquía de excepciones está en el
 segundo diagrama. Los métodos con `*` son abstractos.
+
+El caso de uso **Portal** (integración con el mundo de Ceci) tiene sus diagramas
+de secuencia, con el flujo principal, los errores y los casos no cubiertos, en
+[docs/PORTAL.md](docs/PORTAL.md).
 
 ```mermaid
 classDiagram
@@ -408,6 +444,9 @@ classDiagram
     class HerramientaRotaException {
         handler: 422 herramienta_rota
     }
+    class ServicioExternoException {
+        handler: 502 servicio_externo
+    }
     class ManejadorErrores {
         <<RestControllerAdvice>>
     }
@@ -419,6 +458,7 @@ classDiagram
     ReglaDelJuegoException <|-- EntidadMuertaException
     ReglaDelJuegoException <|-- FueraDeAlcanceException
     ReglaDelJuegoException <|-- HerramientaRotaException
+    MinecraftException <|-- ServicioExternoException
     ManejadorErrores ..> MinecraftException : traduce a JSON
 ```
 
@@ -430,6 +470,7 @@ classDiagram
 | `EntidadMuertaException` | 409 | `entidad_muerta` | Un muerto intenta actuar o se lo quiere editar |
 | `FueraDeAlcanceException` | 422 | `fuera_de_alcance` | El objetivo está lejos (ningún jugador a 3 bloques del creeper) |
 | `HerramientaRotaException` | 422 | `herramienta_rota` | Se quiere usar una herramienta con durabilidad 0 |
+| `ServicioExternoException` | 502 | `servicio_externo` | Otra API (el mundo de Ceci, la API Minecraft remota, restful-api.dev) falló o no respondió |
 
 Todas las respuestas de error tienen la misma forma:
 
@@ -542,7 +583,8 @@ llevan el nombre de la pregunta que falla: `DatoInvalidoException` (¿el dato
 tiene sentido?), `EntidadNoEncontradaException` (¿existe?) y
 `ReglaDelJuegoException` (¿el juego lo permite?), con
 `EntidadMuertaException`, `FueraDeAlcanceException` y
-`HerramientaRotaException` como casos frecuentes de regla. Un id inexistente
+`HerramientaRotaException` como casos frecuentes de regla, y
+`ServicioExternoException` (502) para cuando otra API falla. Un id inexistente
 (404) y una regla incumplida (422/409) son tipos distintos. Cada tipo tiene su
 `@ExceptionHandler` en `ManejadorErrores` (también `HerramientaRotaException`,
 para que el cliente la distinga de las demás reglas). El JSON lleva `error`

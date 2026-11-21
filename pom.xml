@@ -31,6 +31,24 @@
 		<springdoc.version>3.2.0</springdoc.version>
 	</properties>
 	<dependencies>
+		<!-- Log4j2 en lugar de Logback (el logging por defecto de Spring Boot).
+		     Se declara el starter base excluyendo spring-boot-starter-logging: al estar
+		     declarado directamente, Maven usa esta versión (sin Logback) para todos los starters. -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-log4j2</artifactId>
+		</dependency>
+
 	<dependency>
 	<groupId>org.springframework.boot</groupId>
 	<artifactId>spring-boot-h2console</artifactId>
@@ -43,6 +61,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<!-- WebClient para consumir APIs REST externas (sin cambiar el servidor: sigue siendo Spring MVC) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webclient</artifactId>
 		</dependency>
 
 		<!-- OpenAPI 3 (/v3/api-docs) + Swagger UI (/swagger-ui.html). La línea 3.x es la de Spring Boot 4. -->

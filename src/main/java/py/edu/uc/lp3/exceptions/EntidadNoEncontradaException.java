@@ -14,4 +14,9 @@ public class EntidadNoEncontradaException extends MinecraftException {
     public EntidadNoEncontradaException(String recurso, String nombre, Long id) {
         super(recurso + "_no_encontrada", "No existe una " + nombre + " con id " + id + ".");
     }
+
+    /** Con código y mensaje armados por quien llama, por ejemplo para ids de texto de una API externa. */
+    public EntidadNoEncontradaException(String codigo, String mensaje) {
+        super(codigo, mensaje);
+    }
 }

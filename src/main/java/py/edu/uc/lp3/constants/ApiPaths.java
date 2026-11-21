@@ -22,6 +22,17 @@ public final class ApiPaths {
 	/** Simulación: crear una explosión la detona; el historial queda guardado. */
 	public static final String EXPLOSIONES = BASE_API + "/explosiones";
 
+	/** La entidad {id} viaja al mundo Minecraft de Ceci. */
+	public static final String PORTAL = ENTIDADES + "/{id}/portal";
+
+	/** Un esqueleto guardado dispara; la regla de alcance es de la API Minecraft remota. */
+	public static final String FLECHAZOS = BASE_API + "/flechazos";
+
+	/** Objetos de la API externa https://api.restful-api.dev/objects (consultados con WebClient). */
+	public static final String OBJETOS_EXTERNOS = "/api/externo/objetos";
+
+	public static final String OBJETO_EXTERNO = OBJETOS_EXTERNOS + "/{id}";
+
 	private ApiPaths() {
 	}
 }

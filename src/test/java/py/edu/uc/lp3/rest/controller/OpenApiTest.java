@@ -29,9 +29,10 @@ class OpenApiTest {
 				.andExpect(jsonPath("$.info.title").value("API Minecraft — LP3"))
 				.andExpect(jsonPath("$.tags[*].name").value(hasItems(
 						"Estado", "Entidades", "Amenazas", "Comportamientos",
-						"Explosiones")))
+						"Explosiones", "Objetos externos")))
 				.andExpect(jsonPath("$.paths['/api/minecraft/entidades'].post.responses['201']").exists())
 				.andExpect(jsonPath("$.paths['/api/minecraft/entidades/{id}'].get.responses['404']").exists())
+				.andExpect(jsonPath("$.paths['/api/externo/objetos'].get").exists())
 				.andExpect(jsonPath("$.components.schemas.ErrorResponse").exists());
 	}
 

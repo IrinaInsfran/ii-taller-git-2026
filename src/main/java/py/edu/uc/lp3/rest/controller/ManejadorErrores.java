@@ -16,6 +16,7 @@ import py.edu.uc.lp3.exceptions.FueraDeAlcanceException;
 import py.edu.uc.lp3.exceptions.HerramientaRotaException;
 import py.edu.uc.lp3.exceptions.MinecraftException;
 import py.edu.uc.lp3.exceptions.ReglaDelJuegoException;
+import py.edu.uc.lp3.exceptions.ServicioExternoException;
 
 /**
  * Traduce las excepciones que lanzan los servicios a respuestas HTTP: un
@@ -31,7 +32,9 @@ import py.edu.uc.lp3.exceptions.ReglaDelJuegoException;
  *   <li>{@link HerramientaRotaException} → 422: la herramienta tiene
  *       durabilidad 0 y hay que cambiarla;</li>
  *   <li>{@link ReglaDelJuegoException} (el resto) → 422: los datos están
- *       bien, pero el juego no permite esa acción.</li>
+ *       bien, pero el juego no permite esa acción;</li>
+ *   <li>{@link ServicioExternoException} → 502: otra API (el mundo de Ceci,
+ *       la API Minecraft remota, restful-api.dev) falló o no respondió.</li>
  * </ul>
  * El cuerpo siempre trae {@code error} (el tipo), {@code codigo} (el caso
  * concreto) y {@code mensaje} (el texto para una persona).
@@ -79,6 +82,13 @@ public class ManejadorErrores {
             ReglaDelJuegoException excepcion) {
 
         return construir(HttpStatus.UNPROCESSABLE_CONTENT, "regla_del_juego", excepcion);
+    }
+
+    @ExceptionHandler(ServicioExternoException.class)
+    public ResponseEntity<ErrorResponse> servicioExterno(
+            ServicioExternoException excepcion) {
+
+        return construir(HttpStatus.BAD_GATEWAY, "servicio_externo", excepcion);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
