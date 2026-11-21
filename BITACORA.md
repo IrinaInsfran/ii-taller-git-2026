@@ -14,7 +14,7 @@ usó como revisor, redactor y para escribir código que la autora revisó.
 | Octubre 2026 | Claude (Anthropic) | Claude Opus 5.5 (`claude-opus-5-5`) | POO-07 / POO-08 | Interfaz `Arma` y familia `Herramienta`; primera versión de H2, CRUD de entidades, `Explosion`, jerarquía de excepciones y sus tests. |
 | 2026-11-10 | Claude Code (Anthropic), app de escritorio | Claude Opus 5.5 (`claude-opus-5-5`) | POO-08 | Corregir el trabajo práctico con las correcciones enviadas por el profesor. |
 | Noviembre 2026, en clase | Claude Code (Anthropic) | Claude Opus 5.5 (`claude-opus-5-5`) | POO-08 / POO-09 | Integración con otras APIs usando WebClient: portal al mundo de Ceci, flechazos con la regla de disparo de otra API Minecraft y consulta de restful-api.dev; documentación OpenAPI con springdoc; logs de integración con Log4j2. |
-| 2026-11-19 al 2026-11-21 | Claude Code (Anthropic), app de escritorio | Claude Opus 5.5 (`claude-opus-5-5`) | POO-09 | Cerrar las observaciones de la corrección de POO-08 (reglas y excepciones fuera del dominio, ortografía). |
+| 2026-11-19 al 2026-11-21 | Claude Code (Anthropic), app de escritorio | Claude Opus 5.5 (`claude-opus-5-5`) | POO-09 | Cerrar las observaciones de la corrección de POO-08 (reglas y excepciones fuera del dominio, ortografía); leer las reglas y el OpenAPI de Cecilia y Sol; publicar la regla mecha corta; conectar las tres por Tailscale; clientes de A2 y A3, escenario guardado, colección de Insomnia y documentación. |
 
 ## Resumen de prompts — sesión del 2026-11-19 al 2026-11-21 (Claude Code, Claude Opus 5.5)
 
@@ -42,6 +42,35 @@ usó como revisor, redactor y para escribir código que la autora revisó.
    palabras que llevan tilde según el sentido; borró la frase suelta del
    README y agregó la sección «Corrección de POO-08» con cada observación y
    cómo se cerró.
+4. **Commits separados.** Se pidió separar el trabajo pendiente: quedó un
+   commit para el refactor, otro para la documentación, otro para el OpenAPI
+   y otro para las integraciones hechas en clase, cada uno compilando y con
+   sus tests pasando.
+5. **Reglas de A2 y A3.** Se pasaron los repositorios de Cecilia (A2) y Sol
+   (A3). El asistente leyó su código y el OpenAPI que Sol tenía levantado, y
+   preguntó tres cosas antes de seguir: qué cuerpo aceptar en mi regla (se
+   eligió el mismo formato que el `/explosiones/validar` de Sol), cómo
+   consultar las reglas de Cecilia (se le pidió un endpoint que solo valide,
+   sin guardar) y qué puertos usar (Irina 8082, Cecilia 8083, Sol 8080).
+6. **Regla publicada.** Agregó `POST /api/minecraft/reglas/mecha-corta`, que
+   aplica la regla 1 sin tocar H2 (200, 422 o 409), y la probó con la app
+   levantada. Se pidió responder siempre en español.
+7. **Mensajes para el grupo y Tailscale.** Redactó los textos para pedirle a
+   Cecilia su endpoint de validación y para avisarle a Sol la ruta correcta.
+   Explicó cómo conectarse las tres por Tailscale, diagnosticó con
+   `tailscale status` por qué no se veían (tres redes separadas y compartidos
+   en una sola dirección) y comprobó desde mi máquina que los tres servicios
+   respondían. Revisó los repositorios actualizados de Cecilia y Sol, encontró
+   que sus clientes llamaban a rutas o cuerpos que no existían y redactó qué
+   corregir.
+8. **Escenario.** Se aprobó el diseño propuesto y el asistente escribió los
+   clientes de A2 y A3 (`ReglaCompaneraClient`), las excepciones
+   `JugadaRechazadaException` (409) y `CompaneraNoDisponibleException` (502),
+   el escenario `POST /api/minecraft/jugadas/explosion` con la entidad
+   `Jugada`, y sus tests con las compañeras simuladas (138 tests en total).
+   Lo probó contra los servicios reales de Cecilia y Sol (caso feliz, rechazo
+   de cada una y base sin cambios), grabó esas respuestas para la colección de
+   Insomnia de POO-09 y actualizó README, bitácora y el archivo de entrega.
 
 ## Resumen de prompts — sesión del 2026-11-10 (Claude Code, Claude Opus 5.5)
 
