@@ -1,0 +1,64 @@
+{
+  "pedido": "POST /api/minecraft/jugadas/explosion {\"creeperId\":2,\"tiempoTranscurrido\":30}",
+  "estado": 201,
+  "grabada": "2026-11-21, con los servicios reales de Cecilia (100.122.114.103:8083) y Sol (100.87.131.50:8080) por Tailscale",
+  "respuesta": {
+    "id": 1,
+    "creeperId": 2,
+    "tiempoTranscurrido": 30,
+    "momento": "2026-11-21T19:15:07.737638081Z",
+    "a2": {
+      "rol": "A2",
+      "companera": "Cecilia",
+      "url": "http://100.122.114.103:8083/explosiones/validar",
+      "estado": 200,
+      "respuesta": {
+        "aceptada": true,
+        "mensaje": "El Creeper está vivo y todavía no detonó."
+      }
+    },
+    "a3": {
+      "rol": "A3",
+      "companera": "Sol",
+      "url": "http://100.87.131.50:8080/explosiones/validar",
+      "estado": 200,
+      "respuesta": {
+        "aceptada": true,
+        "mensaje": "La explosión cumple el tiempo de detonación y todos los objetivos están dentro del radio."
+      }
+    },
+    "explosion": {
+      "id": 1,
+      "creeperId": 2,
+      "jugadorObjetivoId": 1,
+      "jugadorObjetivo": "Steve",
+      "centroX": 2.0,
+      "centroY": 64.0,
+      "centroZ": 0.0,
+      "potencia": 3.0,
+      "radio": 6.0,
+      "momento": "2026-11-21T19:15:07.717514811Z",
+      "entidadesAlcanzadas": 2,
+      "entidadesMuertas": 1,
+      "danoTotal": 41,
+      "afectados": [
+        {
+          "id": 1,
+          "tipo": "JUGADOR",
+          "distancia": 2.0,
+          "dano": 24,
+          "saludRestante": 0,
+          "murio": true
+        },
+        {
+          "id": 3,
+          "tipo": "CREEPER",
+          "distancia": 2.83,
+          "dano": 17,
+          "saludRestante": 3,
+          "murio": false
+        }
+      ]
+    }
+  }
+}

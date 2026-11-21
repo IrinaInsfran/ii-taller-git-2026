@@ -1,0 +1,452 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-11-21T19:30:00.000Z",
+  "__export_source": "insomnia.desktop.app:v10.3.0",
+  "resources": [
+    {
+      "_id": "wrk_minecraft_poo09",
+      "_type": "workspace",
+      "parentId": null,
+      "name": "Minecraft POO-09 (Irina Insfrán)",
+      "description": "APIs cruzadas: Irina (A1) consulta a Cecilia (A2) y a Sol (A3). Escenario POST /api/minecraft/jugadas/explosion. Respuestas de ejemplo en insomnia/respuestas-poo09/. Empezar con la base vacía (borrar data/) para que los ids coincidan.",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_base_poo09",
+      "_type": "environment",
+      "parentId": "wrk_minecraft_poo09",
+      "name": "Base Environment",
+      "data": {
+        "irina": "http://100.87.95.24:8082",
+        "ceci": "http://100.122.114.103:8083",
+        "sol": "http://100.87.131.50:8080",
+        "steveId": 1,
+        "creeperId": 2,
+        "creeper2Id": 3,
+        "alexId": 4
+      },
+      "isPrivate": false,
+      "metaSortKey": 0
+    },
+    {
+      "_id": "env_local_poo09",
+      "_type": "environment",
+      "parentId": "env_base_poo09",
+      "name": "Local (Irina en esta máquina)",
+      "data": {
+        "irina": "http://localhost:8082"
+      },
+      "isPrivate": false,
+      "metaSortKey": 1
+    },
+    {
+      "_id": "fld_0",
+      "_type": "request_group",
+      "parentId": "wrk_minecraft_poo09",
+      "name": "0. OpenAPI de las tres",
+      "description": "La especificación de cada servicio y a quién consulta el escenario.",
+      "metaSortKey": 0
+    },
+    {
+      "_id": "fld_1",
+      "_type": "request_group",
+      "parentId": "wrk_minecraft_poo09",
+      "name": "1. Preparar el mundo",
+      "description": "Con la base vacía: Steve, dos creepers y Alex. Los ids quedan 1, 2, 3 y 4.",
+      "metaSortKey": 1
+    },
+    {
+      "_id": "fld_2",
+      "_type": "request_group",
+      "parentId": "wrk_minecraft_poo09",
+      "name": "2. Caso feliz",
+      "description": "Cecilia y Sol aceptan: se guardan la jugada y la explosión (201).",
+      "metaSortKey": 2
+    },
+    {
+      "_id": "fld_3",
+      "_type": "request_group",
+      "parentId": "wrk_minecraft_poo09",
+      "name": "3. Rechazo de A2 (Cecilia)",
+      "description": "El mismo creeper ya explotó: Cecilia rechaza y la base queda igual.",
+      "metaSortKey": 3
+    },
+    {
+      "_id": "fld_4",
+      "_type": "request_group",
+      "parentId": "wrk_minecraft_poo09",
+      "name": "4. Rechazo de A3 (Sol)",
+      "description": "Todavía no pasó el tiempo de mecha: Sol rechaza y la base queda igual.",
+      "metaSortKey": 4
+    },
+    {
+      "_id": "fld_5",
+      "_type": "request_group",
+      "parentId": "wrk_minecraft_poo09",
+      "name": "5. Mi regla publicada (mecha corta)",
+      "description": "Lo que consultan Cecilia y Sol de mí; no guarda nada.",
+      "metaSortKey": 5
+    },
+    {
+      "_id": "req_0_00",
+      "_type": "request",
+      "parentId": "fld_0",
+      "name": "OpenAPI de Irina (A1)",
+      "description": "200. Swagger UI: {{ _.irina }}/swagger-ui.html",
+      "method": "GET",
+      "url": "{{ _.irina }}/v3/api-docs",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_0_01",
+      "_type": "request",
+      "parentId": "fld_0",
+      "name": "OpenAPI de Cecilia (A2)",
+      "description": "200. Regla usada: POST /explosiones/validar.",
+      "method": "GET",
+      "url": "{{ _.ceci }}/v3/api-docs",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_0_02",
+      "_type": "request",
+      "parentId": "fld_0",
+      "name": "OpenAPI de Sol (A3)",
+      "description": "200. Regla usada: POST /explosiones/validar.",
+      "method": "GET",
+      "url": "{{ _.sol }}/v3/api-docs",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_0_03",
+      "_type": "request",
+      "parentId": "fld_0",
+      "name": "A quién consulta el escenario",
+      "description": "200: A2 Cecilia y A3 Sol con la URL que sale de la configuración (CECI_URL, SOL_URL).",
+      "method": "GET",
+      "url": "{{ _.irina }}/api/minecraft/jugadas/companeras",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 3
+    },
+    {
+      "_id": "req_1_00",
+      "_type": "request",
+      "parentId": "fld_1",
+      "name": "Crear Steve (0, 64, 0)",
+      "description": "201, id 1.",
+      "method": "POST",
+      "url": "{{ _.irina }}/api/minecraft/entidades",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"JUGADOR\",\n  \"nombre\": \"Steve\",\n  \"posicionX\": 0,\n  \"posicionY\": 64,\n  \"posicionZ\": 0\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_1_01",
+      "_type": "request",
+      "parentId": "fld_1",
+      "name": "Crear creeper a 2 bloques de Steve",
+      "description": "201, id 2. tiempoExplosion 30 por defecto.",
+      "method": "POST",
+      "url": "{{ _.irina }}/api/minecraft/entidades",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"CREEPER\",\n  \"posicionX\": 2,\n  \"posicionY\": 64,\n  \"posicionZ\": 0\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_1_02",
+      "_type": "request",
+      "parentId": "fld_1",
+      "name": "Crear otro creeper (0, 64, 2)",
+      "description": "201, id 3.",
+      "method": "POST",
+      "url": "{{ _.irina }}/api/minecraft/entidades",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"CREEPER\",\n  \"posicionX\": 0,\n  \"posicionY\": 64,\n  \"posicionZ\": 2\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_1_03",
+      "_type": "request",
+      "parentId": "fld_1",
+      "name": "Crear Alex (0, 64, 4)",
+      "description": "201, id 4. Queda vivo para el rechazo de Sol.",
+      "method": "POST",
+      "url": "{{ _.irina }}/api/minecraft/entidades",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"JUGADOR\",\n  \"nombre\": \"Alex\",\n  \"posicionX\": 0,\n  \"posicionY\": 64,\n  \"posicionZ\": 4\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 3
+    },
+    {
+      "_id": "req_2_00",
+      "_type": "request",
+      "parentId": "fld_2",
+      "name": "Explosión aceptada por A2 y A3",
+      "description": "201 + Location. a2 y a3 con la respuesta de cada una; explosion con el daño a cada entidad. Ejemplo: respuestas-poo09/01-caso-feliz-201.json",
+      "method": "POST",
+      "url": "{{ _.irina }}/api/minecraft/jugadas/explosion",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"creeperId\": {{ _.creeperId }},\n  \"tiempoTranscurrido\": 30\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_2_01",
+      "_type": "request",
+      "parentId": "fld_2",
+      "name": "Jugadas guardadas",
+      "description": "200: una jugada.",
+      "method": "GET",
+      "url": "{{ _.irina }}/api/minecraft/jugadas",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_2_02",
+      "_type": "request",
+      "parentId": "fld_2",
+      "name": "La jugada 1",
+      "description": "200.",
+      "method": "GET",
+      "url": "{{ _.irina }}/api/minecraft/jugadas/1",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_3_00",
+      "_type": "request",
+      "parentId": "fld_3",
+      "name": "Repetir con el mismo creeper",
+      "description": "409 rechazada_por_a2: el creeper ya explotó (saludCreeper 0, yaDetonado true) y Cecilia responde 422 CreeperMuertoException. Ejemplo: respuestas-poo09/02-rechazo-a2-ceci-409.json",
+      "method": "POST",
+      "url": "{{ _.irina }}/api/minecraft/jugadas/explosion",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"creeperId\": {{ _.creeperId }},\n  \"tiempoTranscurrido\": 30\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_3_01",
+      "_type": "request",
+      "parentId": "fld_3",
+      "name": "La base sigue igual: una jugada",
+      "description": "200: sigue habiendo una sola jugada.",
+      "method": "GET",
+      "url": "{{ _.irina }}/api/minecraft/jugadas",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_3_02",
+      "_type": "request",
+      "parentId": "fld_3",
+      "name": "La base sigue igual: una explosión",
+      "description": "200: sigue habiendo una sola explosión.",
+      "method": "GET",
+      "url": "{{ _.irina }}/api/minecraft/explosiones",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_4_00",
+      "_type": "request",
+      "parentId": "fld_4",
+      "name": "Mecha encendida hace poco (10 < 30)",
+      "description": "409 rechazada_por_a3: Sol responde 409 «El Creeper necesita 30 segundos para explotar, pero solo transcurrieron 10». Cecilia aceptó, pero no se guarda nada. Ejemplo: respuestas-poo09/03-rechazo-a3-sol-409.json",
+      "method": "POST",
+      "url": "{{ _.irina }}/api/minecraft/jugadas/explosion",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"creeperId\": {{ _.creeper2Id }},\n  \"tiempoTranscurrido\": 10\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_4_01",
+      "_type": "request",
+      "parentId": "fld_4",
+      "name": "Alex sigue con salud 20",
+      "description": "200, salud 20: nadie recibió daño.",
+      "method": "GET",
+      "url": "{{ _.irina }}/api/minecraft/entidades/{{ _.alexId }}",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_4_02",
+      "_type": "request",
+      "parentId": "fld_4",
+      "name": "La base sigue igual: una jugada",
+      "description": "200: sigue habiendo una sola jugada.",
+      "method": "GET",
+      "url": "{{ _.irina }}/api/minecraft/jugadas",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_5_00",
+      "_type": "request",
+      "parentId": "fld_5",
+      "name": "Acepta: jugador a 2 bloques",
+      "description": "200 aceptada, objetivo 0, distancia 2.0.",
+      "method": "POST",
+      "url": "{{ _.irina }}/api/minecraft/reglas/mecha-corta",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"saludCreeper\": 20,\n  \"creeper\": {\n    \"x\": 0,\n    \"y\": 64,\n    \"z\": 0\n  },\n  \"objetivos\": [\n    {\n      \"tipo\": \"jugador\",\n      \"salud\": 20,\n      \"posicion\": {\n        \"x\": 2,\n        \"y\": 64,\n        \"z\": 0\n      }\n    }\n  ]\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_5_01",
+      "_type": "request",
+      "parentId": "fld_5",
+      "name": "Rechaza: nadie a 3 bloques o menos",
+      "description": "422 fuera_de_alcance.",
+      "method": "POST",
+      "url": "{{ _.irina }}/api/minecraft/reglas/mecha-corta",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"creeper\": {\n    \"x\": 0,\n    \"y\": 64,\n    \"z\": 0\n  },\n  \"objetivos\": [\n    {\n      \"tipo\": \"jugador\",\n      \"salud\": 20,\n      \"posicion\": {\n        \"x\": 5,\n        \"y\": 64,\n        \"z\": 0\n      }\n    }\n  ]\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_5_02",
+      "_type": "request",
+      "parentId": "fld_5",
+      "name": "Rechaza: creeper muerto",
+      "description": "409 entidad_muerta.",
+      "method": "POST",
+      "url": "{{ _.irina }}/api/minecraft/reglas/mecha-corta",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"saludCreeper\": 0,\n  \"creeper\": {\n    \"x\": 0,\n    \"y\": 64,\n    \"z\": 0\n  },\n  \"objetivos\": [\n    {\n      \"tipo\": \"jugador\",\n      \"posicion\": {\n        \"x\": 1,\n        \"y\": 64,\n        \"z\": 0\n      }\n    }\n  ]\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2
+    }
+  ]
+}
