@@ -8,12 +8,16 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import py.edu.uc.lp3.dto.ErrorCompaneraResponse;
 import py.edu.uc.lp3.dto.ErrorResponse;
+import py.edu.uc.lp3.exceptions.CompaneraException;
+import py.edu.uc.lp3.exceptions.CompaneraNoDisponibleException;
 import py.edu.uc.lp3.exceptions.DatoInvalidoException;
 import py.edu.uc.lp3.exceptions.EntidadMuertaException;
 import py.edu.uc.lp3.exceptions.EntidadNoEncontradaException;
 import py.edu.uc.lp3.exceptions.FueraDeAlcanceException;
 import py.edu.uc.lp3.exceptions.HerramientaRotaException;
+import py.edu.uc.lp3.exceptions.JugadaRechazadaException;
 import py.edu.uc.lp3.exceptions.MinecraftException;
 import py.edu.uc.lp3.exceptions.ReglaDelJuegoException;
 import py.edu.uc.lp3.exceptions.ServicioExternoException;
@@ -34,10 +38,16 @@ import py.edu.uc.lp3.exceptions.ServicioExternoException;
  *   <li>{@link ReglaDelJuegoException} (el resto) → 422: los datos están
  *       bien, pero el juego no permite esa acción;</li>
  *   <li>{@link ServicioExternoException} → 502: otra API (el mundo de Ceci,
- *       la API Minecraft remota, restful-api.dev) falló o no respondió.</li>
+ *       la API Minecraft remota, restful-api.dev) falló o no respondió;</li>
+ *   <li>{@link JugadaRechazadaException} → 409: la regla de una compañera
+ *       (A2 o A3) rechazó la jugada del escenario;</li>
+ *   <li>{@link CompaneraNoDisponibleException} → 502: la API de una
+ *       compañera no respondió.</li>
  * </ul>
  * El cuerpo siempre trae {@code error} (el tipo), {@code codigo} (el caso
- * concreto) y {@code mensaje} (el texto para una persona).
+ * concreto) y {@code mensaje} (el texto para una persona). Los errores de
+ * una compañera agregan {@code origen}, {@code companera},
+ * {@code estadoCompanera} y {@code respuestaCompanera}.
  */
 @RestControllerAdvice
 public class ManejadorErrores {
@@ -91,6 +101,20 @@ public class ManejadorErrores {
         return construir(HttpStatus.BAD_GATEWAY, "servicio_externo", excepcion);
     }
 
+    @ExceptionHandler(JugadaRechazadaException.class)
+    public ResponseEntity<ErrorCompaneraResponse> jugadaRechazada(
+            JugadaRechazadaException excepcion) {
+
+        return construir(HttpStatus.CONFLICT, "jugada_rechazada", excepcion);
+    }
+
+    @ExceptionHandler(CompaneraNoDisponibleException.class)
+    public ResponseEntity<ErrorCompaneraResponse> companeraNoDisponible(
+            CompaneraNoDisponibleException excepcion) {
+
+        return construir(HttpStatus.BAD_GATEWAY, "companera_no_disponible", excepcion);
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> cuerpoIlegible(
             HttpMessageNotReadableException excepcion) {
@@ -129,4 +153,18 @@ public class ManejadorErrores {
         return ResponseEntity.status(estado).body(cuerpo);
     }
 
+    private ResponseEntity<ErrorCompaneraResponse> construir(
+            HttpStatus estado,
+            String error,
+            CompaneraException excepcion) {
+
+        return ResponseEntity.status(estado).body(new ErrorCompaneraResponse(
+                error,
+                excepcion.getCodigo(),
+                excepcion.getOrigen(),
+                excepcion.getCompanera(),
+                excepcion.getEstadoCompanera(),
+                excepcion.getRespuestaCompanera(),
+                excepcion.getMessage()));
+    }
 }
