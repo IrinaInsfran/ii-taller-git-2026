@@ -3,7 +3,7 @@
 - **Alumna:** Irina Insfrán ([IrinaInsfran](https://github.com/IrinaInsfran))
 - **Materia:** Lenguaje de Programación 3 — Sección F
 - **Repositorio:** <https://github.com/IrinaInsfran/ii-taller-git-2026> (rama `feature/rest`)
-- **Commit de la solución:** <https://github.com/IrinaInsfran/ii-taller-git-2026/commit/143f43bfe574075294779da7a028acbc1f2ef061>
+- **Commit de la solución:** <https://github.com/IrinaInsfran/ii-taller-git-2026/commit/9ace19beefdf2ee0a3deaf20ebf61e7a074b32eb>
 
 ## Grupo
 
@@ -22,6 +22,8 @@ la explosión, el daño y la jugada; si alguna rechaza, la base queda igual y la
 quién fue.
 
 Endpoint: `POST /api/minecraft/jugadas/explosion` con `{"creeperId": 2, "tiempoTranscurrido": 30}`.
+Diagramas de secuencia de cada caso (camino feliz y cada código de error):
+[docs/ESCENARIO-POO-09.md](ESCENARIO-POO-09.md).
 
 | Resultado | HTTP |
 |---|---|
