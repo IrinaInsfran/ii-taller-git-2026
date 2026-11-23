@@ -84,6 +84,10 @@ sequenceDiagram
     end
 ```
 
+Hay un diagrama de secuencia por cada código de respuesta (camino feliz 201, 400, 404, 422,
+rechazo de A2, rechazo de A3, 502 y rollback por mi regla) en
+[docs/ESCENARIO-POO-09.md](docs/ESCENARIO-POO-09.md).
+
 | Caso | HTTP | Cuerpo |
 |---|---|---|
 | A2 y A3 aceptan y mi regla también | 201 | `JugadaResponse`: `a2` y `a3` con lo que contestó cada una (rol, nombre, URL, código y cuerpo) y la `explosion` con el daño a cada entidad. |
