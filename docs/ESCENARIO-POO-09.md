@@ -227,7 +227,7 @@ sequenceDiagram
     S--xCtrl: JugadaRechazadaException (origen A3)
     Ctrl->>M: la excepción sube al handler
     M-->>C: 409 Conflict
-    Note over C,M: error jugada_rechazada, codigo rechazada_por_a3<br/>«Sol (A3) rechazó la jugada: El Creeper necesita 30 segundos<br/>para explotar, pero solo transcurrieron 10.»<br/>H2 queda igual: Alex sigue con salud 20
+    Note over C,M: error jugada_rechazada, codigo rechazada_por_a3<br/>«Sol (A3) rechazó la jugada: El Creeper necesita 30 segundos<br/>para explotar, pero solo transcurrieron 10.»<br/>H2 queda igual: Alex sigue con la salud de antes (13)
 ```
 
 ---

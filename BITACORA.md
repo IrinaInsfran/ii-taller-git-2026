@@ -15,6 +15,30 @@ usó como revisor, redactor y para escribir código que la autora revisó.
 | 2026-11-10 | Claude Code (Anthropic), app de escritorio | Claude Opus 5.5 (`claude-opus-5-5`) | POO-08 | Corregir el trabajo práctico con las correcciones enviadas por el profesor. |
 | Noviembre 2026, en clase | Claude Code (Anthropic) | Claude Opus 5.5 (`claude-opus-5-5`) | POO-08 / POO-09 | Integración con otras APIs usando WebClient: portal al mundo de Ceci, flechazos con la regla de disparo de otra API Minecraft y consulta de restful-api.dev; documentación OpenAPI con springdoc; logs de integración con Log4j2. |
 | 2026-11-19 al 2026-11-21 | Claude Code (Anthropic), app de escritorio | Claude Opus 5.5 (`claude-opus-5-5`) | POO-09 | Cerrar las observaciones de la corrección de POO-08 (reglas y excepciones fuera del dominio, ortografía); leer las reglas y el OpenAPI de Cecilia y Sol; publicar la regla mecha corta; conectar las tres por Tailscale; clientes de A2 y A3, escenario guardado, colección de Insomnia y documentación. |
+| 2026-11-22 al 2026-11-24 | Claude Code (Anthropic), app de escritorio | Claude Opus 5.5 (`claude-opus-5-5`) | POO-09 | Diagramas de secuencia del escenario, PDF de entrega, prueba con los servicios reales de Cecilia y Sol, guía de estudio personal para la defensa (fuera de la entrega) y correcciones de la revisión final. |
+
+## Resumen de prompts — sesión del 2026-11-22 al 2026-11-24 (Claude Code, Claude Opus 5.5)
+
+1. **Diagramas de secuencia.** Se pidió un diagrama Mermaid limpio del camino
+   feliz y uno por cada código de respuesta del escenario. El asistente
+   escribió los ocho de `docs/ESCENARIO-POO-09.md` y los comprobó con el
+   analizador de Mermaid.
+2. **Entrega para Classroom.** Se pidió el archivo de entrega en PDF; el
+   asistente lo generó a partir de `docs/ENTREGA-POO-09.md`.
+3. **Prueba paso a paso con las compañeras.** Se recorrió la colección de
+   Insomnia contra los servicios reales de Cecilia y Sol. El asistente revisó
+   el log de integración y la base para explicar cada resultado: el rechazo de
+   Cecilia, el de Sol, y un 502 cuando el servicio de Cecilia se cayó.
+4. **Guía de estudio.** Se pidió una explicación completa del proyecto para
+   preparar la defensa (visión general, flujo, API REST, POO, polimorfismo,
+   clases, conceptos extra), cómo funcionan las APIs cruzadas y un guion de
+   demostración para las tres integrantes. Es material de estudio personal y
+   no forma parte de la entrega.
+5. **Correcciones de la revisión final.** Al recorrer la colección desde cero
+   se vio que Alex queda con salud 13 (la explosión del caso feliz lo alcanza),
+   no 20; se corrigió en Insomnia, en el README y en el diagrama. También se
+   corrigió la cabecera del README, que apuntaba a las especificaciones de
+   POO-08, y se completó esta bitácora.
 
 ## Resumen de prompts — sesión del 2026-11-19 al 2026-11-21 (Claude Code, Claude Opus 5.5)
 

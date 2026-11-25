@@ -9,7 +9,7 @@
 - **Commit de POO-08 (corregido):** [fed74e9](https://github.com/IrinaInsfran/ii-taller-git-2026/commit/fed74e97a1981e062f8c4a548e69bd91bd1e46c5); la corrección está en [la sección de abajo](#corrección-de-poo-08-observaciones-cerradas).
 - **OpenAPI:** `http://100.87.95.24:8082/v3/api-docs` (JSON) y `http://100.87.95.24:8082/swagger-ui.html` (navegador). En la misma máquina, `localhost` en lugar de la IP.
 - **Bitácora de uso de IA:** [BITACORA.md](BITACORA.md)
-- **Especificaciones (Classroom):** [docs/ESPECIFICACIONES-POO-08.md](docs/ESPECIFICACIONES-POO-08.md)
+- **Especificaciones (Classroom):** POO-09 en [docs/ENTREGA-POO-09.md](docs/ENTREGA-POO-09.md); las de POO-08 siguen en [docs/ESPECIFICACIONES-POO-08.md](docs/ESPECIFICACIONES-POO-08.md)
 - **Colecciones Insomnia:** [POO-09](insomnia/minecraft-poo09-insomnia.json) (escenario y rechazos, con [respuestas de ejemplo](insomnia/respuestas-poo09/)) y [POO-08](insomnia/minecraft-poo08-insomnia.json)
 
 API REST en Spring Boot 4 / Java 21 que guarda el mundo de Minecraft en una base
@@ -142,8 +142,15 @@ CECI_URL=http://localhost:8083 SOL_URL=http://localhost:8080 ./mvnw spring-boot:
 
 ## Corrección de POO-08: observaciones cerradas
 
-POO-08 sacó 20/24 (documento «Corrección POO-08 - Irina Insfrán»). Tenía dos
-observaciones que restaban puntos y dos mejoras sugeridas. Todas quedaron cerradas:
+POO-08 sacó **20/24** (nota 8,3/10, más el bono por entrega en plazo), según el documento
+«Corrección POO-08 - Irina Insfrán». El puntaje completo:
+
+| 1 Entrega | 2 Paquetes | 3 Ocultamiento | 4 Herencia | 5 Constructores | 6 Observable | 7 Git | 8 Documentación | Total |
+|---|---|---|---|---|---|---|---|---|
+| 3 | **2** | 3 | 3 | 3 | 3 | 3 | **0** | **20/24** |
+
+Tenía dos observaciones que restaban puntos (criterios 2 y 8) y tres mejoras sugeridas que no
+restaban. Todas quedaron cerradas:
 
 | # | Observación | Estado | Cómo se cerró |
 |---|---|---|---|
@@ -825,7 +832,8 @@ Respuestas de ejemplo grabadas contra los servicios reales de Cecilia y Sol:
    - **3. Rechazo de A2 (Cecilia)** — repetir con el mismo creeper: 409 `rechazada_por_a2`;
      la lista de jugadas y la de explosiones siguen con una.
    - **4. Rechazo de A3 (Sol)** — el otro creeper con `tiempoTranscurrido` 10: 409
-     `rechazada_por_a3`; Alex sigue con salud 20 y sigue habiendo una jugada.
+     `rechazada_por_a3`; Alex sigue con salud 13 (la que le dejó el caso feliz) y sigue
+     habiendo una jugada.
    - **5. Mi regla publicada** — `mecha-corta` con 200, 422 y 409, lo que consultan ellas.
 
 ### POO-08: CRUD, protocolo, simulación y excepciones
