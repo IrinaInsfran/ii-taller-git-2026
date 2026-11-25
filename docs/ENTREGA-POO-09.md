@@ -2,8 +2,8 @@
 
 - **Alumna:** Irina Insfrán ([IrinaInsfran](https://github.com/IrinaInsfran))
 - **Materia:** Lenguaje de Programación 3 — Sección F
-- **Repositorio:** <https://github.com/IrinaInsfran/ii-taller-git-2026> (rama `feature/rest`)
-- **Commit de la solución:** <https://github.com/IrinaInsfran/ii-taller-git-2026/commit/8aeec792cd64faeabb5c76c6dd0eeaa3cc66663c>
+- **Repositorio:** <https://github.com/IrinaInsfran/ii-taller-git-2026> (rama `feature/rest`, unida a `main` con el pull request [#4](https://github.com/IrinaInsfran/ii-taller-git-2026/pull/4))
+- **Commit de la solución:** <https://github.com/IrinaInsfran/ii-taller-git-2026/commit/062868029a543a753eed10ca2175d3fae6a833fa>
 
 ## Grupo
 
