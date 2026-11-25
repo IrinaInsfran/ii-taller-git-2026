@@ -3,8 +3,6 @@ package py.edu.uc.lp3.domain;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
-import py.edu.uc.lp3.exceptions.EntidadMuertaException;
-
 /**
  * Esqueleto: entidad hostil que ataca a distancia.
  */
@@ -23,8 +21,8 @@ public class Esqueleto extends EntidadHostil {
     }
 
     /**
-     * Constructor sobrecargado: un esqueleto normal en esa posicion. Delega
-     * en el constructor completo, que valida.
+     * Constructor sobrecargado: un esqueleto normal en esa posición. Delega
+     * en el constructor completo.
      */
     public Esqueleto(double posicionX, double posicionY, double posicionZ) {
         this(
@@ -55,17 +53,6 @@ public class Esqueleto extends EntidadHostil {
                 rangoDeteccion,
                 danoAtaque
         );
-    }
-
-    public void dispararFlecha() {
-
-        if (!estaViva()) {
-            throw new EntidadMuertaException(
-                    "Un Esqueleto muerto no puede disparar."
-            );
-        }
-
-        System.out.println("El esqueleto dispara una flecha.");
     }
 
     @Override

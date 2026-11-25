@@ -11,31 +11,33 @@ import py.edu.uc.lp3.domain.Aldeano;
 import py.edu.uc.lp3.domain.Animal;
 import py.edu.uc.lp3.domain.Creeper;
 import py.edu.uc.lp3.domain.Entidad;
+import py.edu.uc.lp3.domain.EntidadHostil;
 import py.edu.uc.lp3.domain.Esqueleto;
 import py.edu.uc.lp3.domain.Jugador;
 import py.edu.uc.lp3.domain.Zombie;
 import py.edu.uc.lp3.exceptions.DatoInvalidoException;
+import py.edu.uc.lp3.exceptions.EntidadMuertaException;
 import py.edu.uc.lp3.exceptions.EntidadNoEncontradaException;
 import py.edu.uc.lp3.repository.EntidadRepository;
 import py.edu.uc.lp3.service.EntidadService;
 
 /**
- * Reglas de negocio del CRUD.
- * <p>
- * Las reglas de cada entidad (salud positiva, velocidad no negativa...)
- * siguen viviendo en los constructores del dominio. Este servicio agrega
- * las que dependen del contexto de la aplicacion:
+ * Reglas de negocio del CRUD. El dominio solo guarda el estado: todas las
+ * validaciones están acá.
  * <ul>
- *   <li>el tipo es obligatorio y define que campos son obligatorios;</li>
- *   <li>si no se manda ninguna estadistica (salud, velocidad, rango...),
+ *   <li>el tipo es obligatorio y define qué campos son obligatorios;</li>
+ *   <li>si no se manda ninguna estadística (salud, velocidad, rango...),
  *       se usa el constructor sobrecargado con los valores por defecto del
  *       juego; si se manda alguna, el constructor completo y todas son
  *       obligatorias;</li>
+ *   <li>invariantes de cada entidad ({@link #validar(Entidad)}): salud
+ *       mayor que cero, velocidad no negativa, posición con valores finitos,
+ *       rango de detección no negativo, daño y tiempo de explosión positivos,
+ *       nombre y profesión no vacíos, experiencia no negativa;</li>
  *   <li>no puede haber dos jugadores con el mismo nombre;</li>
+ *   <li>el PUT no cambia el tipo de una entidad ni edita a una muerta;</li>
  *   <li>no se puede leer, actualizar ni borrar un id inexistente.</li>
  * </ul>
- * Que una entidad no cambie de tipo ni se edite muerta lo decide
- * {@link Entidad#reemplazarCon(Entidad)}, en el dominio.
  */
 @Service
 @Transactional
@@ -50,6 +52,7 @@ public class EntidadServiceImpl implements EntidadService {
 	@Override
 	public Entidad crear(EntidadRequest datos) {
 		Entidad nueva = construir(datos);
+		validar(nueva);
 		validarNombreUnico(nueva, null);
 		return entidadRepository.save(nueva);
 	}
@@ -71,21 +74,80 @@ public class EntidadServiceImpl implements EntidadService {
 	public Entidad actualizar(Long id, EntidadRequest datos) {
 		Entidad existente = obtenerPorId(id);
 
-		// PUT reemplaza todos los datos: se construye una entidad nueva (asi
-		// pasa por las validaciones del constructor) y la existente copia su
+		// PUT reemplaza todos los datos: se construye una entidad nueva, pasa
+		// por las mismas validaciones que el POST y la existente copia su
 		// estado. La entidad nueva nunca se guarda; el id no cambia.
 		Entidad nueva = construir(datos);
+		validar(nueva);
 		validarNombreUnico(nueva, id);
+		validarReemplazo(existente, nueva);
 		existente.reemplazarCon(nueva);
 
-		// La entidad esta gestionada por JPA: el cambio se guarda al cerrar
-		// la transaccion.
+		// La entidad está gestionada por JPA: el cambio se guarda al cerrar
+		// la transacción.
 		return existente;
 	}
 
 	@Override
 	public void eliminar(Long id) {
 		entidadRepository.delete(obtenerPorId(id));
+	}
+
+	/**
+	 * Invariantes de la entidad recién construida. Se revisan sobre el
+	 * objeto (y no sobre el JSON) para cubrir igual el constructor completo y
+	 * el sobrecargado, que pone los valores por defecto del juego.
+	 */
+	private static void validar(Entidad entidad) {
+		if (entidad.getSalud() <= 0) {
+			throw new DatoInvalidoException("La salud debe ser mayor que cero.");
+		}
+		if (entidad.getVelocidad() < 0) {
+			throw new DatoInvalidoException("La velocidad no puede ser negativa.");
+		}
+		if (!Double.isFinite(entidad.getPosicionX())
+				|| !Double.isFinite(entidad.getPosicionY())
+				|| !Double.isFinite(entidad.getPosicionZ())) {
+			throw new DatoInvalidoException("La posición debe contener valores válidos.");
+		}
+
+		if (entidad instanceof EntidadHostil hostil) {
+			if (!Double.isFinite(hostil.getRangoDeteccion()) || hostil.getRangoDeteccion() < 0) {
+				throw new DatoInvalidoException("El rango de detección no puede ser negativo.");
+			}
+			if (hostil.getDanoAtaque() <= 0) {
+				throw new DatoInvalidoException("El daño de ataque debe ser mayor que cero.");
+			}
+		}
+
+		switch (entidad) {
+			case Creeper creeper when creeper.getTiempoExplosion() <= 0 ->
+					throw new DatoInvalidoException("El tiempo de explosión debe ser mayor que cero.");
+			case Jugador jugador when jugador.getNombre() == null || jugador.getNombre().isBlank() ->
+					throw new DatoInvalidoException("El nombre del jugador no puede estar vacío.");
+			case Jugador jugador when jugador.getNivelEXP() < 0 ->
+					throw new DatoInvalidoException("El nivel de experiencia no puede ser negativo.");
+			case Aldeano aldeano when aldeano.getProfesion() == null || aldeano.getProfesion().isBlank() ->
+					throw new DatoInvalidoException("La profesión no puede estar vacía.");
+			default -> {
+				// El resto de los tipos no tiene campos propios que validar.
+			}
+		}
+	}
+
+	/** El PUT no cambia el tipo (un zombie no pasa a ser jugador) ni resucita a un muerto. */
+	private static void validarReemplazo(Entidad existente, Entidad nueva) {
+		if (nueva.getClass() != existente.getClass()) {
+			throw new DatoInvalidoException(
+					"cambio_de_tipo",
+					"No se puede cambiar el tipo de una entidad: la entidad "
+					+ existente.getId() + " es " + TipoEntidad.de(existente) + ".");
+		}
+
+		if (!existente.estaViva()) {
+			throw new EntidadMuertaException(
+					"La entidad " + existente.getId() + " está muerta: no se puede modificar.");
+		}
 	}
 
 	private void validarNombreUnico(Entidad entidad, Long idExcluido) {
@@ -98,8 +160,8 @@ public class EntidadServiceImpl implements EntidadService {
 	}
 
 	/**
-	 * Crea la clase hija que corresponde al tipo pedido. Los constructores
-	 * del dominio validan los valores; aca solo se exige que esten presentes.
+	 * Crea la clase hija que corresponde al tipo pedido. Acá solo se exige que
+	 * los campos estén presentes; los valores los revisa {@link #validar(Entidad)}.
 	 */
 	private Entidad construir(EntidadRequest datos) {
 		if (datos == null) {
@@ -141,7 +203,7 @@ public class EntidadServiceImpl implements EntidadService {
 		};
 	}
 
-	/** Ninguna estadistica del tipo vino en el JSON: se usan las del juego. */
+	/** Ninguna estadística del tipo vino en el JSON: se usan las del juego. */
 	private static boolean sinEstadisticas(TipoEntidad tipo, EntidadRequest d) {
 		boolean sinBase = d.salud() == null && d.velocidad() == null;
 		boolean sinHostil = d.rangoDeteccion() == null && d.danoAtaque() == null;

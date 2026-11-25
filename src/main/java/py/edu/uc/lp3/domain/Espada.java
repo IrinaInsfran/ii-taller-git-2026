@@ -1,7 +1,5 @@
 package py.edu.uc.lp3.domain;
 
-import py.edu.uc.lp3.exceptions.DatoInvalidoException;
-
 /**
  * Espada: el arma cuerpo a cuerpo por excelencia.
  * Cada golpe gasta 1 de durabilidad.
@@ -12,7 +10,7 @@ public class Espada extends Herramienta implements Arma {
         super(material);
     }
 
-    /** Daño de la espada en Minecraft Java segun su material. */
+    /** Daño de la espada en Minecraft Java según su material. */
     @Override
     public int getDanoAtaque() {
         return switch (getMaterial()) {
@@ -25,15 +23,8 @@ public class Espada extends Herramienta implements Arma {
     }
 
     @Override
-    public void atacar(Entidad objetivo) {
-
-        if (objetivo == null) {
-            throw new DatoInvalidoException("El objetivo no puede ser nulo.");
-        }
-
-        verificarQueNoEsteRota();
-        objetivo.recibirDano(getDanoAtaque());
-        desgastar(1);
+    public int getDesgastePorGolpe() {
+        return 1;
     }
 
     @Override

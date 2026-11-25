@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Configuración de Log4j2. Spring Boot la carga sola por llamarse log4j2-spring.xml.
+
+  - Todo el proyecto loguea en INFO por consola.
+  - Las clases que hablan con otros servicios (restful-api.dev, API Minecraft remota,
+    mundo de Ceci) loguean en DEBUG cada paso: por consola y además en
+    logs/integracion.log (rota a los 10 MB y guarda 5 archivos).
+
+  Para cambiar el nivel sin tocar este archivo, con una variable de entorno al arrancar
+  (Spring Boot la aplica sobre esta configuración):
+    LOGGING_LEVEL_PY_EDU_UC_LP3_CLIENT=INFO ./mvnw spring-boot:run
+  (Ojo: en un comentario XML no puede aparecer el doble guion.)
+-->
+<Configuration status="WARN">
+
+    <Properties>
+        <Property name="PATRON">%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%15.15t] %-40.40c{1.} : %m%n%throwable</Property>
+        <Property name="CARPETA_LOGS">logs</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="Consola" target="SYSTEM_OUT">
+            <PatternLayout pattern="${PATRON}"/>
+        </Console>
+
+        <RollingFile name="ArchivoIntegracion"
+                     fileName="${CARPETA_LOGS}/integracion.log"
+                     filePattern="${CARPETA_LOGS}/integracion-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${PATRON}"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- Integración con otros servicios: DEBUG en consola y en logs/integracion.log -->
+
+        <!-- Cada pedido HTTP saliente: método, URL, código de respuesta y duración -->
+        <Logger name="py.edu.uc.lp3.config.WebClientLogFilter" level="DEBUG" additivity="false">
+            <AppenderRef ref="Consola"/>
+            <AppenderRef ref="ArchivoIntegracion"/>
+        </Logger>
+
+        <!-- Clientes: qué se manda y qué se recibe de cada API -->
+        <Logger name="py.edu.uc.lp3.client" level="DEBUG" additivity="false">
+            <AppenderRef ref="Consola"/>
+            <AppenderRef ref="ArchivoIntegracion"/>
+        </Logger>
+
+        <!-- Servicios que combinan la lógica propia con la de otra API -->
+        <Logger name="py.edu.uc.lp3.service.impl.ObjetoExternoServiceImpl" level="DEBUG" additivity="false">
+            <AppenderRef ref="Consola"/>
+            <AppenderRef ref="ArchivoIntegracion"/>
+        </Logger>
+        <Logger name="py.edu.uc.lp3.service.impl.FlechazoServiceImpl" level="DEBUG" additivity="false">
+            <AppenderRef ref="Consola"/>
+            <AppenderRef ref="ArchivoIntegracion"/>
+        </Logger>
+        <Logger name="py.edu.uc.lp3.service.impl.PortalServiceImpl" level="DEBUG" additivity="false">
+            <AppenderRef ref="Consola"/>
+            <AppenderRef ref="ArchivoIntegracion"/>
+        </Logger>
+
+        <Root level="INFO">
+            <AppenderRef ref="Consola"/>
+        </Root>
+    </Loggers>
+</Configuration>

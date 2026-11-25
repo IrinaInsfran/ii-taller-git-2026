@@ -204,3 +204,7 @@ tags
 ### H2 ###
 # Base de datos local generada al ejecutar la app
 data/
+
+### Logs ###
+# Archivos de Log4j2 (logs/integracion.log)
+logs/

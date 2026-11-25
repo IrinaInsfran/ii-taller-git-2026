@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import py.edu.uc.lp3.domain.Explosion;
 
 /**
- * Una explosion simulada. Al crearla trae {@code afectados} (el detalle de
+ * Una explosión simulada. Al crearla trae {@code afectados} (el detalle de
  * cada impacto); al leerla del historial trae solo los contadores que se
  * guardaron en H2.
  */
@@ -48,12 +48,12 @@ public record ExplosionResponse(
 		}
 	}
 
-	/** Respuesta de la simulacion recien hecha, con el detalle de impactos. */
+	/** Respuesta de la simulación recién hecha, con el detalle de impactos. */
 	public static ExplosionResponse conDetalle(Explosion explosion) {
 		return armar(explosion, explosion.getImpactos().stream().map(Afectado::desde).toList());
 	}
 
-	/** Respuesta del historial: lo que quedo guardado. */
+	/** Respuesta del historial: lo que quedó guardado. */
 	public static ExplosionResponse resumen(Explosion explosion) {
 		return armar(explosion, null);
 	}

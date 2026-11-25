@@ -1,7 +1,6 @@
 package py.edu.uc.lp3.domain;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Entity;
@@ -10,30 +9,19 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Transient;
 
-import py.edu.uc.lp3.exceptions.DatoInvalidoException;
-import py.edu.uc.lp3.exceptions.ReglaDelJuegoException;
-
 /**
- * Explosion en el mundo: daña a las entidades segun su distancia al centro.
+ * Explosión en el mundo, guardada como registro de la simulación.
  * <p>
- * Regla 2, "onda expansiva". Usa la formula de Minecraft Java para una
- * victima sin bloques que la cubran:
- * <ul>
- *   <li>el radio de daño es el doble de la potencia;</li>
- *   <li>{@code impacto = 1 - distancia / radio};</li>
- *   <li>{@code daño = (impacto² + impacto) / 2 * 7 * radio + 1}.</li>
- * </ul>
- * Para un creeper (potencia 3) el radio es 6 bloques y el daño en el centro
- * es 43: mata a un jugador sin armadura que este muy cerca.
- * <p>
- * Se persiste como registro de la simulacion: despues de detonar guarda
- * quien la provoco y cuantas entidades alcanzo y mato. Una explosion
- * detona una sola vez.
+ * Solo guarda el estado: dónde fue, con qué potencia, quién la provocó y el
+ * resumen de lo que hizo (entidades alcanzadas, muertas y daño total). La
+ * regla 2, "onda expansiva" (a quién daña y cuánto), la aplica
+ * {@code ReglasCreeperServiceImpl}, que al terminar le pasa los impactos a
+ * {@link #registrarDetonacion(List)}.
  */
 @Entity
 public class Explosion {
 
-    /** Lo que la explosion le hizo a una entidad alcanzada. */
+    /** Lo que la explosión le hizo a una entidad alcanzada. */
     public record Impacto(Entidad entidad, double distancia, int dano) {
     }
 
@@ -57,26 +45,16 @@ public class Explosion {
     private int entidadesMuertas;
     private int danoTotal;
 
-    /** Lo que paso en esta detonacion; no se guarda, se resume en los contadores. */
+    /** Lo que pasó en esta detonación; no se guarda, se resume en los contadores. */
     @Transient
     private List<Impacto> impactos = List.of();
 
-    /** Constructor requerido por JPA para reconstruir la explosion desde la base. */
+    /** Constructor requerido por JPA para reconstruir la explosión desde la base. */
     protected Explosion() {
     }
 
+    /** Una explosión suelta, sin creeper ni jugador asociados. */
     public Explosion(double centroX, double centroY, double centroZ, double potencia) {
-
-        if (!Double.isFinite(centroX)
-                || !Double.isFinite(centroY)
-                || !Double.isFinite(centroZ)) {
-            throw new DatoInvalidoException("El centro de la explosión debe contener valores válidos.");
-        }
-
-        if (!Double.isFinite(potencia) || potencia <= 0) {
-            throw new DatoInvalidoException("La potencia de la explosión debe ser mayor que cero.");
-        }
-
         this.centroX = centroX;
         this.centroY = centroY;
         this.centroZ = centroZ;
@@ -84,11 +62,10 @@ public class Explosion {
     }
 
     /**
-     * La explosion de un creeper: en su posicion, con su potencia, provocada
-     * por {@code objetivo} (puede ser null si exploto sin jugador cerca).
-     * Solo la crea {@link Creeper}.
+     * La explosión de un creeper: en su posición, con su potencia, provocada
+     * por {@code objetivo} (puede ser null si explotó sin jugador cerca).
      */
-    Explosion(Creeper creeper, Jugador objetivo) {
+    public Explosion(Creeper creeper, Jugador objetivo) {
         this(creeper.getPosicionX(),
                 creeper.getPosicionY(),
                 creeper.getPosicionZ(),
@@ -102,6 +79,7 @@ public class Explosion {
         }
     }
 
+    /** El radio de la explosión es el doble de su potencia. */
     public double getRadio() {
         return potencia * 2;
     }
@@ -115,71 +93,18 @@ public class Explosion {
     }
 
     /**
-     * Daño que recibe una entidad a esa distancia del centro; 0 si esta
-     * fuera del radio.
+     * Guarda el resultado de la detonación: la marca como detonada, anota el
+     * momento y resume los impactos en los contadores que van a H2.
      */
-    public int calcularDano(double distancia) {
-
-        if (!Double.isFinite(distancia) || distancia < 0) {
-            throw new DatoInvalidoException("La distancia debe ser un valor válido y no negativo.");
-        }
-
-        double radio = getRadio();
-
-        if (distancia >= radio) {
-            return 0;
-        }
-
-        double impacto = 1 - distancia / radio;
-
-        return (int) ((impacto * impacto + impacto) / 2 * 7 * radio + 1);
-    }
-
-    /**
-     * Aplica el daño a cada entidad viva dentro del radio y devuelve a
-     * quienes alcanzo. Las entidades muertas o fuera del radio no cambian.
-     *
-     * @throws ReglaDelJuegoException si esta explosion ya detono
-     */
-    public List<Impacto> detonar(List<? extends Entidad> entidades) {
-
-        if (detonada) {
-            throw new ReglaDelJuegoException(
-                    "explosion_ya_detonada",
-                    "Una explosión detona una sola vez.");
-        }
-
-        if (entidades == null) {
-            throw new DatoInvalidoException("La lista de entidades no puede ser nula.");
-        }
-
-        List<Impacto> alcanzadas = new ArrayList<>();
-
-        for (Entidad entidad : entidades) {
-
-            if (entidad == null || !entidad.estaViva()) {
-                continue;
-            }
-
-            double distancia = distanciaA(entidad);
-            int dano = calcularDano(distancia);
-
-            if (dano > 0) {
-                entidad.recibirDano(dano);
-                alcanzadas.add(new Impacto(entidad, distancia, dano));
-            }
-        }
-
+    public void registrarDetonacion(List<Impacto> alcanzadas) {
         detonada = true;
         momento = Instant.now();
         impactos = List.copyOf(alcanzadas);
-        entidadesAlcanzadas = alcanzadas.size();
-        entidadesMuertas = (int) alcanzadas.stream()
+        entidadesAlcanzadas = impactos.size();
+        entidadesMuertas = (int) impactos.stream()
                 .filter(impacto -> !impacto.entidad().estaViva())
                 .count();
-        danoTotal = alcanzadas.stream().mapToInt(Impacto::dano).sum();
-
-        return impactos;
+        danoTotal = impactos.stream().mapToInt(Impacto::dano).sum();
     }
 
     public Long getId() {
@@ -234,7 +159,7 @@ public class Explosion {
         return danoTotal;
     }
 
-    /** Impactos de la detonacion recien hecha; vacio si se leyo de la base. */
+    /** Impactos de la detonación recién hecha; vacío si se leyó de la base. */
     public List<Impacto> getImpactos() {
         return impactos;
     }

@@ -3,12 +3,9 @@ package py.edu.uc.lp3.domain;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
-import py.edu.uc.lp3.exceptions.DatoInvalidoException;
-import py.edu.uc.lp3.exceptions.EntidadMuertaException;
-import py.edu.uc.lp3.exceptions.ReglaDelJuegoException;
-
 /**
- * Animal: entidad pasiva que puede ser montable.
+ * Animal: entidad pasiva que puede ser montable (si se lo puede montar lo
+ * decide {@code AccionServiceImpl}).
  */
 @Entity
 @DiscriminatorValue("ANIMAL")
@@ -60,38 +57,6 @@ public class Animal extends EntidadPasiva {
         this.montable = montable;
     }
 
-    public void montar(Jugador jugador) {
-
-        if (jugador == null) {
-            throw new DatoInvalidoException(
-                    "El jugador no puede ser nulo."
-            );
-        }
-
-        if (!estaViva()) {
-            throw new EntidadMuertaException(
-                    "Un animal muerto no puede ser montado."
-            );
-        }
-
-        if (!jugador.estaViva()) {
-            throw new EntidadMuertaException(
-                    "Un jugador muerto no puede montar."
-            );
-        }
-
-        if (!montable) {
-            throw new ReglaDelJuegoException(
-                    "animal_no_montable",
-                    "Este animal no es montable."
-            );
-        }
-
-        System.out.println(
-                jugador.getNombre() + " monta al animal."
-        );
-    }
-
     @Override
     protected void copiarEstadoDe(Entidad otra) {
         super.copiarEstadoDe(otra);
@@ -99,11 +64,6 @@ public class Animal extends EntidadPasiva {
     }
 
     public boolean isMontable() {
-        return montable;
-    }
-
-    // Se conserva por compatibilidad con el nombre usado anteriormente.
-    public boolean isMontar() {
         return montable;
     }
 

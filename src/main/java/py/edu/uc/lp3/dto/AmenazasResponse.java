@@ -9,8 +9,8 @@ import py.edu.uc.lp3.domain.Amenaza;
 import py.edu.uc.lp3.domain.Entidad;
 
 /**
- * Cuanto peligro corre una entidad: cada {@link Amenaza} con el daño que le
- * haria ahora, y si sobreviviria a todas juntas.
+ * Cuánto peligro corre una entidad: cada {@link Amenaza} con el daño que le
+ * haría ahora, y si sobreviviría a todas juntas.
  */
 public record AmenazasResponse(
 		Long objetivoId,

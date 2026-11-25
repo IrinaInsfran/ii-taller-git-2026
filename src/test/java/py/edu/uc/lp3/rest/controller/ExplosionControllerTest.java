@@ -20,8 +20,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Prueba la simulacion de punta a punta: las dos reglas del dominio se
- * aplican, el daño queda guardado en H2 y la explosion queda en el historial.
+ * Prueba la simulación de punta a punta: las dos reglas del servicio se
+ * aplican, el daño queda guardado en H2 y la explosión queda en el historial.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -62,7 +62,7 @@ class ExplosionControllerTest {
 	}
 
 	private long creeperEn(double x) throws Exception {
-		// Sin estadisticas: usa el constructor sobrecargado Creeper(x, y, z)
+		// Sin estadísticas: usa el constructor sobrecargado Creeper(x, y, z)
 		return crear("""
 				{"tipo":"CREEPER","posicionX":%s,"posicionY":64,"posicionZ":0}
 				""".formatted(x));

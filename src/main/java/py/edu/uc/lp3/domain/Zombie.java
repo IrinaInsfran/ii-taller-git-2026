@@ -3,12 +3,9 @@ package py.edu.uc.lp3.domain;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
-import py.edu.uc.lp3.exceptions.DatoInvalidoException;
-import py.edu.uc.lp3.exceptions.EntidadMuertaException;
-import py.edu.uc.lp3.exceptions.FueraDeAlcanceException;
-
 /**
- * Zombie: entidad hostil que persigue al jugador.
+ * Zombie: entidad hostil que persigue al jugador e infecta aldeanos (la
+ * infección la valida {@code AccionServiceImpl}).
  */
 @Entity
 @DiscriminatorValue("ZOMBIE")
@@ -25,8 +22,8 @@ public class Zombie extends EntidadHostil {
     }
 
     /**
-     * Constructor sobrecargado: un zombie normal en esa posicion. Delega en
-     * el constructor completo, que valida.
+     * Constructor sobrecargado: un zombie normal en esa posición. Delega en
+     * el constructor completo.
      */
     public Zombie(double posicionX, double posicionY, double posicionZ) {
         this(
@@ -57,33 +54,6 @@ public class Zombie extends EntidadHostil {
                 rangoDeteccion,
                 danoAtaque
         );
-    }
-
-    public void infectaAldeano(Aldeano aldeano) {
-
-        if (aldeano == null) {
-            throw new DatoInvalidoException("El aldeano no puede ser nulo.");
-        }
-
-        if (!estaViva()) {
-            throw new EntidadMuertaException(
-                    "Un Zombie muerto no puede infectar aldeanos."
-            );
-        }
-
-        if (!aldeano.estaViva()) {
-            throw new EntidadMuertaException(
-                    "No se puede infectar a un aldeano muerto."
-            );
-        }
-
-        if (distanciaA(aldeano) > getRangoDeteccion()) {
-            throw new FueraDeAlcanceException(
-                    "El aldeano está fuera del rango de detección."
-            );
-        }
-
-        aldeano.infectar();
     }
 
     @Override

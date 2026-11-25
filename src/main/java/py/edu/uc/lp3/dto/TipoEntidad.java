@@ -11,7 +11,7 @@ import py.edu.uc.lp3.domain.Zombie;
 /**
  * Tipos concretos de entidad que se pueden crear por la API.
  * <p>
- * Entidad es abstracta, asi que el cliente debe decir que clase hija quiere.
+ * Entidad es abstracta, así que el cliente debe decir qué clase hija quiere.
  */
 public enum TipoEntidad {
 	JUGADOR,

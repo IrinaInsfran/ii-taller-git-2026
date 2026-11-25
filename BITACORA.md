@@ -1,7 +1,7 @@
 # Bitácora de uso de asistentes de IA
 
 Esta bitácora registra qué asistente de IA se usó, con qué modelo exacto y para
-qué, en los ejercicios POO-06 a POO-08 de este repositorio. Las decisiones de
+qué, en los ejercicios POO-06 a POO-09 de este repositorio. Las decisiones de
 diseño y el código entregado son responsabilidad de la autora; el asistente se
 usó como revisor, redactor y para escribir código que la autora revisó.
 
@@ -13,6 +13,88 @@ usó como revisor, redactor y para escribir código que la autora revisó.
 | 2026-10-04 | Claude (Anthropic), en la app claude.ai | Claude Opus 5.5 (`claude-opus-5-5`) | POO-06 | Revisión de la rama contra el enunciado y la rúbrica antes del merge; redacción de esta bitácora y de la sección del README sobre sobrecarga y sobreescritura. |
 | Octubre 2026 | Claude (Anthropic) | Claude Opus 5.5 (`claude-opus-5-5`) | POO-07 / POO-08 | Interfaz `Arma` y familia `Herramienta`; primera versión de H2, CRUD de entidades, `Explosion`, jerarquía de excepciones y sus tests. |
 | 2026-11-10 | Claude Code (Anthropic), app de escritorio | Claude Opus 5.5 (`claude-opus-5-5`) | POO-08 | Corregir el trabajo práctico con las correcciones enviadas por el profesor. |
+| Noviembre 2026, en clase | Claude Code (Anthropic) | Claude Opus 5.5 (`claude-opus-5-5`) | POO-08 / POO-09 | Integración con otras APIs usando WebClient: portal al mundo de Ceci, flechazos con la regla de disparo de otra API Minecraft y consulta de restful-api.dev; documentación OpenAPI con springdoc; logs de integración con Log4j2. |
+| 2026-11-19 al 2026-11-21 | Claude Code (Anthropic), app de escritorio | Claude Opus 5.5 (`claude-opus-5-5`) | POO-09 | Cerrar las observaciones de la corrección de POO-08 (reglas y excepciones fuera del dominio, ortografía); leer las reglas y el OpenAPI de Cecilia y Sol; publicar la regla mecha corta; conectar las tres por Tailscale; clientes de A2 y A3, escenario guardado, colección de Insomnia y documentación. |
+| 2026-11-22 al 2026-11-24 | Claude Code (Anthropic), app de escritorio | Claude Opus 5.5 (`claude-opus-5-5`) | POO-09 | Diagramas de secuencia del escenario, PDF de entrega, prueba con los servicios reales de Cecilia y Sol, guía de estudio personal para la defensa (fuera de la entrega) y correcciones de la revisión final. |
+
+## Resumen de prompts — sesión del 2026-11-22 al 2026-11-24 (Claude Code, Claude Opus 5.5)
+
+1. **Diagramas de secuencia.** Se pidió un diagrama Mermaid limpio del camino
+   feliz y uno por cada código de respuesta del escenario. El asistente
+   escribió los ocho de `docs/ESCENARIO-POO-09.md` y los comprobó con el
+   analizador de Mermaid.
+2. **Entrega para Classroom.** Se pidió el archivo de entrega en PDF; el
+   asistente lo generó a partir de `docs/ENTREGA-POO-09.md`.
+3. **Prueba paso a paso con las compañeras.** Se recorrió la colección de
+   Insomnia contra los servicios reales de Cecilia y Sol. El asistente revisó
+   el log de integración y la base para explicar cada resultado: el rechazo de
+   Cecilia, el de Sol, y un 502 cuando el servicio de Cecilia se cayó.
+4. **Guía de estudio.** Se pidió una explicación completa del proyecto para
+   preparar la defensa (visión general, flujo, API REST, POO, polimorfismo,
+   clases, conceptos extra), cómo funcionan las APIs cruzadas y un guion de
+   demostración para las tres integrantes. Es material de estudio personal y
+   no forma parte de la entrega.
+5. **Correcciones de la revisión final.** Al recorrer la colección desde cero
+   se vio que Alex queda con salud 13 (la explosión del caso feliz lo alcanza),
+   no 20; se corrigió en Insomnia, en el README y en el diagrama. También se
+   corrigió la cabecera del README, que apuntaba a las especificaciones de
+   POO-08, y se completó esta bitácora.
+
+## Resumen de prompts — sesión del 2026-11-19 al 2026-11-21 (Claude Code, Claude Opus 5.5)
+
+1. **Pedido inicial.** Se pegó la consigna de POO-09 (APIs cruzadas entre A1,
+   A2 y A3) y se adjuntó el PDF con la corrección de POO-08 (20/24: 2/3 en
+   organización en paquetes y 0/3 en documentación). El asistente leyó la
+   corrección, el enunciado, la página de grupos y el ejemplo UNO, y resumió
+   qué faltaba antes de tocar nada.
+2. **Corrección de POO-08, criterio 2.** Se pidió empezar por la corrección.
+   El asistente sacó del dominio las validaciones, las dos reglas y las
+   excepciones:
+   - creó `ReglasCreeperServiceImpl` (mecha corta y onda expansiva),
+     `AccionServiceImpl` (moverse, atacar, huir, infectar, comerciar, montar,
+     experiencia) y `HerramientaServiceImpl` (golpear, talar, minar);
+   - pasó las validaciones de los constructores a `EntidadServiceImpl.validar`
+     y las reglas del PUT a `EntidadServiceImpl.validarReemplazo`;
+   - dejó las clases de `domain` con estado privado, sin setters públicos y
+     con mensajes que no lanzan excepciones (la salud se acota entre 0 y el
+     máximo);
+   - movió las pruebas de reglas a `service.impl` (118 tests, todos pasan) y
+     le dio a `HerramientaRotaException` su propio handler.
+3. **Corrección de POO-08, criterio 8.** Revisó la ortografía de README,
+   bitácora, `docs/`, Javadoc, comentarios, mensajes y descripciones de
+   OpenAPI con el diccionario `es_PY` de hunspell y leyendo a mano las
+   palabras que llevan tilde según el sentido; borró la frase suelta del
+   README y agregó la sección «Corrección de POO-08» con cada observación y
+   cómo se cerró.
+4. **Commits separados.** Se pidió separar el trabajo pendiente: quedó un
+   commit para el refactor, otro para la documentación, otro para el OpenAPI
+   y otro para las integraciones hechas en clase, cada uno compilando y con
+   sus tests pasando.
+5. **Reglas de A2 y A3.** Se pasaron los repositorios de Cecilia (A2) y Sol
+   (A3). El asistente leyó su código y el OpenAPI que Sol tenía levantado, y
+   preguntó tres cosas antes de seguir: qué cuerpo aceptar en mi regla (se
+   eligió el mismo formato que el `/explosiones/validar` de Sol), cómo
+   consultar las reglas de Cecilia (se le pidió un endpoint que solo valide,
+   sin guardar) y qué puertos usar (Irina 8082, Cecilia 8083, Sol 8080).
+6. **Regla publicada.** Agregó `POST /api/minecraft/reglas/mecha-corta`, que
+   aplica la regla 1 sin tocar H2 (200, 422 o 409), y la probó con la app
+   levantada. Se pidió responder siempre en español.
+7. **Mensajes para el grupo y Tailscale.** Redactó los textos para pedirle a
+   Cecilia su endpoint de validación y para avisarle a Sol la ruta correcta.
+   Explicó cómo conectarse las tres por Tailscale, diagnosticó con
+   `tailscale status` por qué no se veían (tres redes separadas y compartidos
+   en una sola dirección) y comprobó desde mi máquina que los tres servicios
+   respondían. Revisó los repositorios actualizados de Cecilia y Sol, encontró
+   que sus clientes llamaban a rutas o cuerpos que no existían y redactó qué
+   corregir.
+8. **Escenario.** Se aprobó el diseño propuesto y el asistente escribió los
+   clientes de A2 y A3 (`ReglaCompaneraClient`), las excepciones
+   `JugadaRechazadaException` (409) y `CompaneraNoDisponibleException` (502),
+   el escenario `POST /api/minecraft/jugadas/explosion` con la entidad
+   `Jugada`, y sus tests con las compañeras simuladas (138 tests en total).
+   Lo probó contra los servicios reales de Cecilia y Sol (caso feliz, rechazo
+   de cada una y base sin cambios), grabó esas respuestas para la colección de
+   Insomnia de POO-09 y actualizó README, bitácora y el archivo de entrega.
 
 ## Resumen de prompts — sesión del 2026-11-10 (Claude Code, Claude Opus 5.5)
 

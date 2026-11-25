@@ -5,6 +5,13 @@
 - **Commit de la solución:** https://github.com/IrinaInsfran/ii-taller-git-2026/commit/fed74e97a1981e062f8c4a548e69bd91bd1e46c5
 - **Arranque:** `./mvnw spring-boot:run` (puerto 8080)
 
+> **Nota posterior a la corrección:** este documento describe la entrega de
+> POO-08 tal como se corrigió. Después, las validaciones, las dos reglas y las
+> excepciones pasaron del dominio a la capa de servicio
+> (`ReglasCreeperServiceImpl.mechaCorta` y `ondaExpansiva`, `EntidadServiceImpl`,
+> `AccionServiceImpl`, `HerramientaServiceImpl`). El detalle está en la sección
+> «Corrección de POO-08» del [README](../README.md).
+
 ## Objetivo
 
 Un servicio HTTP con Spring Boot que guarda en **H2** el mundo de Minecraft que

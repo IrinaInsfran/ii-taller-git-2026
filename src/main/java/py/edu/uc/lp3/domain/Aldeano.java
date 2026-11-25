@@ -3,12 +3,9 @@ package py.edu.uc.lp3.domain;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
-import py.edu.uc.lp3.exceptions.DatoInvalidoException;
-import py.edu.uc.lp3.exceptions.EntidadMuertaException;
-import py.edu.uc.lp3.exceptions.ReglaDelJuegoException;
-
 /**
- * Aldeano: entidad pasiva que realiza comercio.
+ * Aldeano: entidad pasiva que comercia según su profesión. Si puede comerciar
+ * o ser infectado lo decide {@code AccionServiceImpl}.
  */
 @Entity
 @DiscriminatorValue("ALDEANO")
@@ -27,7 +24,7 @@ public class Aldeano extends EntidadPasiva {
 
     /**
      * Constructor sobrecargado: un aldeano normal (no domesticable) con su
-     * profesion. Delega en el constructor completo, que valida la profesion.
+     * profesión. Delega en el constructor completo.
      */
     public Aldeano(double posicionX, double posicionY, double posicionZ, String profesion) {
         this(
@@ -58,50 +55,12 @@ public class Aldeano extends EntidadPasiva {
                 domesticable
         );
 
-        if (profesion == null || profesion.isBlank()) {
-            throw new DatoInvalidoException(
-                    "La profesión no puede estar vacía."
-            );
-        }
-
         this.profesion = profesion;
         this.infectado = false;
     }
 
-    public void comercio() {
-
-        if (!estaViva()) {
-            throw new EntidadMuertaException(
-                    "Un aldeano muerto no puede comerciar."
-            );
-        }
-
-        if (infectado) {
-            throw new ReglaDelJuegoException(
-                    "aldeano_infectado",
-                    "Un aldeano infectado no puede comerciar."
-            );
-        }
-
-        System.out.println(
-                "El aldeano (" +
-                profesion +
-                ") ofrece comerciar."
-        );
-    }
-
-    /**
-     * Cambio de estado controlado desde el dominio.
-     * Package-private para que lo use Zombie sin exponer un setter público.
-     */
-    void infectar() {
-
-        if (!estaViva()) {
-            throw new EntidadMuertaException(
-                    "Un aldeano muerto no puede ser infectado."
-            );
-        }
-
+    /** El aldeano queda infectado (lo pide un zombie, a través del servicio). */
+    public void infectar() {
         infectado = true;
     }
 

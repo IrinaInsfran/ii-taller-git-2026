@@ -24,7 +24,7 @@ public class ComportamientoServiceImpl implements ComportamientoService {
 	/**
 	 * Recorre las entidades guardadas como {@code List<Entidad>}: el servicio
 	 * no necesita saber el tipo concreto de cada una, solo invocar el
-	 * comportamiento polimorfico de Entidad.
+	 * comportamiento polimórfico de Entidad.
 	 */
 	@Override
 	public List<Map<String, String>> obtenerComportamientos() {

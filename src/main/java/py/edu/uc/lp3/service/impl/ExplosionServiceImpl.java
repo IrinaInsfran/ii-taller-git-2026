@@ -15,15 +15,16 @@ import py.edu.uc.lp3.exceptions.ReglaDelJuegoException;
 import py.edu.uc.lp3.repository.EntidadRepository;
 import py.edu.uc.lp3.repository.ExplosionRepository;
 import py.edu.uc.lp3.service.ExplosionService;
+import py.edu.uc.lp3.service.ReglasCreeperService;
 
 /**
- * Orquesta la simulacion; las reglas estan en el dominio.
+ * Orquesta la simulación sobre las entidades guardadas.
  * <p>
- * Busca al creeper y a los jugadores vivos, y le pide al {@link Creeper} que
- * explote ({@link Creeper#explotarCercaDe}): la regla 1 (mecha corta) la
- * aplica el creeper y la regla 2 (onda expansiva) la {@link Explosion}.
- * Todo corre en una transaccion: si el dominio lanza una excepcion, ninguna
- * entidad queda dañada a medias y no se guarda la explosion.
+ * Busca al creeper y a los jugadores vivos, y le pide a
+ * {@link ReglasCreeperService#explotarCercaDe} que aplique la regla 1 (mecha
+ * corta) y la regla 2 (onda expansiva). Todo corre en una transacción: si una
+ * regla lanza una excepción, ninguna entidad queda dañada a medias y no se
+ * guarda la explosión.
  */
 @Service
 @Transactional
@@ -31,11 +32,14 @@ public class ExplosionServiceImpl implements ExplosionService {
 
 	private final EntidadRepository entidadRepository;
 	private final ExplosionRepository explosionRepository;
+	private final ReglasCreeperService reglasCreeper;
 
 	public ExplosionServiceImpl(EntidadRepository entidadRepository,
-	                            ExplosionRepository explosionRepository) {
+	                            ExplosionRepository explosionRepository,
+	                            ReglasCreeperService reglasCreeper) {
 		this.entidadRepository = entidadRepository;
 		this.explosionRepository = explosionRepository;
+		this.reglasCreeper = reglasCreeper;
 	}
 
 	@Override
@@ -55,9 +59,10 @@ public class ExplosionServiceImpl implements ExplosionService {
 					+ ": solo un CREEPER puede explotar.");
 		}
 
-		// Las entidades cargadas estan gestionadas por JPA: el daño que les
-		// aplica la explosion se guarda solo al terminar la transaccion.
-		Explosion explosion = creeper.explotarCercaDe(
+		// Las entidades cargadas están gestionadas por JPA: el daño que les
+		// aplica la explosión se guarda solo al terminar la transacción.
+		Explosion explosion = reglasCreeper.explotarCercaDe(
+				creeper,
 				entidadRepository.buscarJugadoresVivos(),
 				entidadRepository.findAll());
 

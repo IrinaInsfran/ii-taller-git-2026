@@ -1,0 +1,18 @@
+{
+  "pedido": "POST /api/minecraft/jugadas/explosion {\"creeperId\":3,\"tiempoTranscurrido\":10}",
+  "estado": 409,
+  "grabada": "2026-11-21, con los servicios reales de Cecilia (100.122.114.103:8083) y Sol (100.87.131.50:8080) por Tailscale",
+  "respuesta": {
+    "error": "jugada_rechazada",
+    "codigo": "rechazada_por_a3",
+    "origen": "A3",
+    "companera": "Sol",
+    "estadoCompanera": 409,
+    "respuestaCompanera": {
+      "error": "Explosión no preparada",
+      "mensaje": "El Creeper necesita 30 segundos para explotar, pero solo transcurrieron 10.",
+      "estado": 409
+    },
+    "mensaje": "Sol (A3) rechazó la jugada: El Creeper necesita 30 segundos para explotar, pero solo transcurrieron 10. La jugada no se guardó."
+  }
+}

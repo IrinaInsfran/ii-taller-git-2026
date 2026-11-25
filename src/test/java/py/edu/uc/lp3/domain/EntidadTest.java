@@ -2,29 +2,23 @@ package py.edu.uc.lp3.domain;
 
 import org.junit.jupiter.api.Test;
 
-import py.edu.uc.lp3.exceptions.DatoInvalidoException;
-import py.edu.uc.lp3.exceptions.EntidadMuertaException;
-import py.edu.uc.lp3.exceptions.FueraDeAlcanceException;
-import py.edu.uc.lp3.exceptions.ReglaDelJuegoException;
-
 import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * El dominio solo guarda el estado: estos tests revisan que los mensajes
+ * cambien el estado como dicen y que la salud quede siempre entre 0 y la
+ * salud máxima, sin lanzar excepciones. Las reglas se prueban en
+ * {@code service.impl}.
+ */
 class EntidadTest {
 
     private Jugador steve() { return new Jugador(20, 0, 64, 0, 5, "Steve", 0); }
     private Zombie zombie() { return new Zombie(20, 5, 64, 0, 3, 16, 3); }
     private Creeper creeper() { return new Creeper(20, 6, 64, 0, 2, 16, 3, 30); }
     private Aldeano aldeano() { return new Aldeano(20, 10, 64, 0, 2, false, "Herrero"); }
-
-    @Test
-    void constructorRechazaEstadoInvalido() {
-        assertThrows(DatoInvalidoException.class, () -> new Zombie(0, 0, 64, 0, 3, 16, 3));
-        assertThrows(DatoInvalidoException.class, () -> new Jugador(20, 0, 64, 0, 5, " ", 0));
-        assertThrows(DatoInvalidoException.class, () -> new Creeper(20, 0, 64, 0, 2, 16, 3, 0));
-    }
 
     @Test
     void laSaludNuncaQuedaNegativa() {
@@ -35,10 +29,17 @@ class EntidadTest {
     }
 
     @Test
-    void danoNegativoSeRechaza() {
+    void dañoMaximoDeIntNoDejaSaludNegativa() {
         Zombie z = zombie();
-        assertThrows(DatoInvalidoException.class, () -> z.recibirDano(-5));
-        assertEquals(20, z.getSalud());
+        z.recibirDano(Integer.MAX_VALUE);
+        assertEquals(0, z.getSalud());
+    }
+
+    @Test
+    void dañoNegativoNoSubeLaSaludPorEncimaDelMaximo() {
+        Zombie z = zombie();
+        z.recibirDano(Integer.MIN_VALUE);
+        assertEquals(z.getSaludMaxima(), z.getSalud());
     }
 
     @Test
@@ -50,67 +51,19 @@ class EntidadTest {
     }
 
     @Test
-    void noSeMueveMasQueSuVelocidad() {
-        Zombie z = zombie();
-        assertThrows(ReglaDelJuegoException.class, () -> z.mover(10, 0, 0));
-        assertEquals(5, z.getPosicionX());
+    void curarConElMaximoDeIntNoDesborda() {
+        Aldeano a = aldeano();
+        a.recibirDano(19);
+        a.curar(Integer.MAX_VALUE);
+        assertEquals(a.getSaludMaxima(), a.getSalud());
     }
 
     @Test
-    void unMuertoNoActua() {
-        Zombie z = zombie();
-        z.recibirDano(20);
-        assertThrows(EntidadMuertaException.class, () -> z.mover(1, 0, 0));
-        assertThrows(EntidadMuertaException.class, () -> z.atacar(steve()));
-    }
-
-    @Test
-    void creeperExplotaYMuere() {
+    void morirDejaLaSaludEnCero() {
         Creeper c = creeper();
-        Jugador j = steve();
-        c.atacar(j);
-        assertEquals(17, j.getSalud());
+        c.morir();
+        assertEquals(0, c.getSalud());
         assertFalse(c.estaViva());
-    }
-
-    @Test
-    void esqueletoNoAtacaFueraDeRango() {
-        Esqueleto e = new Esqueleto(20, 30, 64, 0, 3, 10, 4);
-        Jugador j = steve();
-        assertThrows(FueraDeAlcanceException.class, () -> e.atacar(j));
-        assertEquals(20, j.getSalud());
-    }
-
-    @Test
-    void aldeanoInfectadoNoComercia() {
-        Aldeano a = aldeano();
-        assertDoesNotThrow(a::comercio);
-        zombie().infectaAldeano(a);
-        assertTrue(a.isInfectado());
-        assertThrows(ReglaDelJuegoException.class, a::comercio);
-    }
-
-    @Test
-    void pasivaHuyeYSeAleja() {
-        Aldeano a = aldeano();
-        Zombie z = zombie();
-        double antes = a.distanciaA(z);
-        a.huir(z);
-        assertTrue(a.distanciaA(z) > antes);
-    }
-
-    @Test
-    void animalNoMontableSeRechaza() {
-        Animal gallina = new Animal(4, 0, 64, 0, 1, false, false);
-        assertThrows(ReglaDelJuegoException.class, () -> gallina.montar(steve()));
-    }
-
-    @Test
-    void experienciaSoloSube() {
-        Jugador j = steve();
-        assertThrows(DatoInvalidoException.class, () -> j.ganarExperiencia(-10));
-        j.ganarExperiencia(5);
-        assertEquals(5, j.getNivelEXP());
     }
 
     @Test
@@ -122,85 +75,34 @@ class EntidadTest {
     }
 
     @Test
-    void curarConElMaximoDeIntNoDesbordaNiDejaSaludNegativa() {
-        Jugador j = steve();
-        j.recibirDano(5);
-        j.curar(Integer.MAX_VALUE);
-        assertEquals(j.getSaludMaxima(), j.getSalud());
-        assertTrue(j.getSalud() >= 0);
+    void moverEnHorizontalNoCambiaLaAltura() {
+        Zombie z = zombie();
+        z.mover(1, -2);
+        assertEquals(6, z.getPosicionX());
+        assertEquals(64, z.getPosicionY());
+        assertEquals(-2, z.getPosicionZ());
     }
 
     @Test
-    void curarConElMaximoDeIntSobreSaludCompletaNoCambiaNada() {
-        Jugador j = steve();
-        j.curar(Integer.MAX_VALUE);
-        assertEquals(20, j.getSalud());
+    void distanciaEntreDosEntidades() {
+        assertEquals(5, steve().distanciaA(zombie()));
     }
 
     @Test
-    void curarConElMaximoDeIntNuncaDejaSaludNegativa() {
-        Aldeano a = aldeano();
-        a.recibirDano(19);
-        assertEquals(1, a.getSalud());
-        a.curar(Integer.MAX_VALUE);
-        assertEquals(a.getSaludMaxima(), a.getSalud());
-        assertTrue(a.getSalud() >= 0);
-        assertTrue(a.estaViva());
-    }
-
-    @Test
-    void ganarExperienciaConDesbordamientoFallaYNoPierdeElNivel() {
+    void laExperienciaSeSumaYNoDaLaVuelta() {
         Jugador j = steve();
+        j.ganarExperiencia(5);
+        assertEquals(5, j.getNivelEXP());
         j.ganarExperiencia(Integer.MAX_VALUE);
         assertEquals(Integer.MAX_VALUE, j.getNivelEXP());
-        assertThrows(DatoInvalidoException.class,
-                () -> j.ganarExperiencia(1));
-        assertEquals(Integer.MAX_VALUE, j.getNivelEXP());
     }
 
     @Test
-    void velocidadCeroEsValidaPeroImpideHuir() {
-        Aldeano quieto = new Aldeano(20, 0, 64, 0, 0, false, "Pescador");
-        assertEquals(0, quieto.getVelocidad());
-        assertThrows(ReglaDelJuegoException.class, () -> quieto.huir(zombie()));
-        quieto.mover(0, 0, 0);
-        assertEquals(0, quieto.getPosicionX());
-    }
-
-    @Test
-    void posicionesNoFinitasSeRechazanEnElConstructor() {
-        assertThrows(DatoInvalidoException.class,
-                () -> new Zombie(20, Double.NaN, 64, 0, 3, 16, 3));
-        assertThrows(DatoInvalidoException.class,
-                () -> new Zombie(20, 0, Double.POSITIVE_INFINITY, 0, 3, 16, 3));
-        assertThrows(DatoInvalidoException.class,
-                () -> new Zombie(20, 0, 64, Double.NEGATIVE_INFINITY, 3, 16, 3));
-    }
-
-    @Test
-    void desplazamientoNoFinitoSeRechaza() {
-        Zombie z = zombie();
-        assertThrows(DatoInvalidoException.class,
-                () -> z.mover(Double.NaN, 0, 0));
-        assertEquals(5, z.getPosicionX());
-    }
-
-    @Test
-    void rangoDeteccionNoFinitoSeRechaza() {
-        assertThrows(DatoInvalidoException.class,
-                () -> new Zombie(20, 0, 64, 0, 3, Double.NaN, 3));
-        assertThrows(DatoInvalidoException.class,
-                () -> new Zombie(20, 0, 64, 0, 3, Double.POSITIVE_INFINITY, 3));
-        assertThrows(DatoInvalidoException.class,
-                () -> new Zombie(20, 0, 64, 0, 3, -1, 3));
-    }
-
-    @Test
-    void dañoMaximoDeIntNoDejaSaludNegativa() {
-        Zombie z = zombie();
-        z.recibirDano(Integer.MAX_VALUE);
-        assertEquals(0, z.getSalud());
-        assertFalse(z.estaViva());
+    void aldeanoInfectadoCambiaDeEstado() {
+        Aldeano a = aldeano();
+        assertFalse(a.isInfectado());
+        a.infectar();
+        assertTrue(a.isInfectado());
     }
 
     @Test
@@ -223,24 +125,7 @@ class EntidadTest {
         List<String> descripciones = mundo.stream()
                 .map(Entidad::describirComportamiento)
                 .toList();
-        assertEquals(3, descripciones.size());
         assertEquals(3, Set.copyOf(descripciones).size());
-    }
-
-    @Test
-    void moverEnHorizontalNoCambiaLaAltura() {
-        Zombie z = zombie();
-        z.mover(1, -2);
-        assertEquals(6, z.getPosicionX());
-        assertEquals(64, z.getPosicionY());
-        assertEquals(-2, z.getPosicionZ());
-    }
-
-    @Test
-    void moverEnHorizontalRespetaLaVelocidad() {
-        Zombie z = zombie();
-        assertThrows(ReglaDelJuegoException.class, () -> z.mover(4, 0));
-        assertEquals(5, z.getPosicionX());
     }
 
     @Test
@@ -256,25 +141,5 @@ class EntidadTest {
         assertEquals(64, c.getPosicionY());
         assertEquals(-5, c.getPosicionZ());
         assertTrue(c.estaViva());
-    }
-
-    @Test
-    void ambasFirmasDeCreeperDejanUnCreeperValido() {
-        Creeper porDefecto = new Creeper(0, 64, 0);
-        Creeper completo = creeper();
-        for (Creeper c : List.of(porDefecto, completo)) {
-            assertTrue(c.estaViva());
-            assertEquals(c.getSaludMaxima(), c.getSalud());
-            assertTrue(c.getVelocidad() >= 0);
-            assertTrue(c.getRangoDeteccion() > 0);
-            assertTrue(c.getDanoAtaque() > 0);
-            assertTrue(c.getTiempoExplosion() > 0);
-        }
-    }
-
-    @Test
-    void elConstructorSobrecargadoTambienValidaLaPosicion() {
-        assertThrows(DatoInvalidoException.class,
-                () -> new Creeper(Double.NaN, 64, 0));
     }
 }

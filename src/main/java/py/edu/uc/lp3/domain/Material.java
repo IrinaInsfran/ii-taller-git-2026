@@ -3,9 +3,9 @@ package py.edu.uc.lp3.domain;
 /**
  * Material con el que se fabrica una herramienta.
  * <p>
- * Define cuantos usos aguanta (durabilidad, valores de Minecraft Java) y su
- * nivel de mineria: un pico solo obtiene un mineral si su nivel alcanza el
- * que el mineral exige. El oro es la curiosidad del juego: mina rapido pero
+ * Define cuántos usos aguanta (durabilidad, valores de Minecraft Java) y su
+ * nivel de minería: un pico solo obtiene un mineral si su nivel alcanza el
+ * que el mineral exige. El oro es la curiosidad del juego: mina rápido pero
  * tiene el nivel de la madera y se rompe enseguida.
  */
 public enum Material {
