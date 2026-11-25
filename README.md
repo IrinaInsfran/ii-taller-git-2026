@@ -117,17 +117,34 @@ carpetas 3 y 4 de Insomnia, que después del rechazo listan las jugadas y las ex
 ### Cómo levantar los tres servicios
 
 Primero A2 y A3, que no dependen de nadie para responder sus reglas; después A1. Cada una en su
-máquina, conectada a Tailscale:
+máquina, conectada a Tailscale, o las tres en la misma máquina (ver más abajo). Los commits son
+los que cada una entregó en Classroom:
+
+| Rol | Integrante | Repositorio | Commit | Carpeta y puerto |
+|---|---|---|---|---|
+| A2 | Cecilia Basualdo | [CeciBasu/clbasualdo-taller-git-2026](https://github.com/CeciBasu/clbasualdo-taller-git-2026) | [`04d5ae3`](https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/04d5ae3d7fb51df4756da7a52a4ea1cdf82292ee) | `minecraft/`, 8083 |
+| A3 | María Sol Ferreira | [MariaSol45/msferreira-tplp3-2026](https://github.com/MariaSol45/msferreira-tplp3-2026) | [`0bfc893`](https://github.com/MariaSol45/msferreira-tplp3-2026/commit/0bfc893ce7d3d197b83231071c4b580d71c00048) | `minecraft/`, 8080 |
+| A1 | Irina Insfrán | [IrinaInsfran/ii-taller-git-2026](https://github.com/IrinaInsfran/ii-taller-git-2026) | el del enlace de [docs/ENTREGA-POO-09.md](docs/ENTREGA-POO-09.md) | raíz, 8082 |
 
 ```bash
-# Cecilia (A2), en su repositorio, rama poo-09-apis-cruzadas
-cd minecraft && ./mvnw spring-boot:run        # puerto 8083
+# A2: Cecilia (puerto 8083)
+git clone https://github.com/CeciBasu/clbasualdo-taller-git-2026.git
+cd clbasualdo-taller-git-2026 && git checkout 04d5ae3d7fb51df4756da7a52a4ea1cdf82292ee
+cd minecraft && ./mvnw spring-boot:run
+```
 
-# Sol (A3), en su repositorio, rama feature/poo-09-apis-cruzadas
-cd minecraft && ./mvnw spring-boot:run        # puerto 8080
+```bash
+# A3: Sol (puerto 8080)
+git clone https://github.com/MariaSol45/msferreira-tplp3-2026.git
+cd msferreira-tplp3-2026 && git checkout 0bfc893ce7d3d197b83231071c4b580d71c00048
+cd minecraft && ./mvnw spring-boot:run
+```
 
-# Irina (A1), en este repositorio
-./mvnw spring-boot:run                        # puerto 8082
+```bash
+# A1: Irina (puerto 8082), con la base vacía
+git clone https://github.com/IrinaInsfran/ii-taller-git-2026.git
+cd ii-taller-git-2026 && git checkout <hash del enlace de entrega>
+./mvnw spring-boot:run
 ```
 
 Para comprobar que cada una llega a las otras: `GET /v3/api-docs` de las tres tiene que dar 200, y
@@ -139,6 +156,62 @@ variables de entorno. Por ejemplo, si las tres corren en la misma máquina:
 ```bash
 CECI_URL=http://localhost:8083 SOL_URL=http://localhost:8080 ./mvnw spring-boot:run
 ```
+
+### Si A2 o A3 no responden
+
+**Qué hace mi servicio:** espera como máximo 5 segundos (`companeras.timeout`). Si la compañera
+no contesta, no hay conexión o su API devuelve 5xx, responde **502** `companera_no_disponible`
+con el `origen` (A2 o A3) y no guarda nada. No reintenta solo: el pedido se repite a mano cuando
+la compañera vuelve a estar en línea.
+
+**Qué pasó y qué hice durante el trabajo:**
+
+- **Al principio no nos veíamos.** Cada una estaba en su propia red de Tailscale y no todas
+  abrían el Swagger de las otras. Compartimos las máquinas entre las tres hasta que cada una
+  abrió los tres OpenAPI; recién ahí empezamos a probar.
+- **El 23/11 se cayó el servicio de Cecilia** en medio de la prueba del rechazo de Sol. Mi
+  escenario respondió 502 `companera_no_disponible`, `origen: A2`, y la base quedó igual.
+  Comprobé desde mi máquina que su computadora respondía por Tailscale pero el puerto 8083 no,
+  le avisé, levantó otra vez su Spring Boot y repetí el pedido: dio el 409
+  `rechazada_por_a3` que se esperaba.
+- **Para la corrección, por si alguna no está en línea:** las respuestas reales del caso feliz
+  y de cada rechazo están grabadas en [`insomnia/respuestas-poo09/`](insomnia/respuestas-poo09/),
+  y `JugadaControllerTest` prueba cada caso con las dos compañeras simuladas
+  (`./mvnw test`).
+
+### Preguntas del enunciado
+
+**OpenAPI.** Vive en `/v3/api-docs` (JSON) y se lee en `/swagger-ui.html`; lo genera springdoc
+desde las anotaciones de los controllers. Describe el CRUD de entidades, la simulación
+(`POST /api/minecraft/explosiones`), mi regla publicada (`POST /api/minecraft/reglas/mecha-corta`)
+y el escenario, cada uno con sus códigos de error y el esquema del cuerpo de error.
+
+**Grupo.** Ver [Grupo y reglas de cada una](#grupo-y-reglas-de-cada-una): A1 soy yo, A2 es
+Cecilia y A3 es Sol, con la regla de cada una citada de su OpenAPI.
+
+**Escenario.** Que un creeper explote necesita las dos validaciones: Cecilia cuida que esté vivo
+y que no haya detonado antes, y Sol, que haya pasado su tiempo de mecha y que los alcanzados
+estén dentro del radio. Después de un escenario exitoso, mi base tiene una fila nueva en
+`JUGADA` (con lo que respondió cada una) y otra en `EXPLOSION`, el creeper queda con salud 0 y
+cada entidad del radio con el daño que recibió. Si A2 acepta y A3 rechaza, no cambia nada.
+
+**Cliente.** Las URLs y las rutas de A2 y A3 son propiedades que toman variables de entorno
+(`CECI_URL`, `CECI_RUTA`, `SOL_URL`, `SOL_RUTA`); ver
+[URLs de las APIs externas](#urls-de-las-apis-externas-externalizables).
+
+**Errores.** No propago el código tal cual: lo traduzco a mi jerarquía. Un 4xx de la compañera
+es `JugadaRechazadaException` (409) y un 5xx, una falta de conexión o un tiempo vencido es
+`CompaneraNoDisponibleException` (502); las dos son hijas de `CompaneraException`. El código y
+el cuerpo originales viajan en `estadoCompanera` y `respuestaCompanera`. El handler distingue A2
+de A3 con `origen` y con el `codigo` (`rechazada_por_a2` o `rechazada_por_a3`).
+
+**Límite.** No copié reglas ni clases de mis compañeras. Mis clientes solo conocen lo que
+publica el OpenAPI de cada una: la ruta, el cuerpo que reciben y el código de respuesta, más el
+campo `mensaje` del error para explicar el rechazo.
+
+**Pregunta de anclaje: si una compañera cambia el nombre de su ruta, ¿alcanza con actualizar lo
+que dice el OpenAPI?** Sí. La ruta no está en el código: se cambia `CECI_RUTA` o `SOL_RUTA` (o la
+propiedad `companeras.a2.ruta` / `companeras.a3.ruta`) y se vuelve a arrancar, sin tocar Java.
 
 ## Corrección de POO-08: observaciones cerradas
 

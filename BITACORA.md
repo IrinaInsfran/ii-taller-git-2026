@@ -15,7 +15,7 @@ usó como revisor, redactor y para escribir código que la autora revisó.
 | 2026-11-10 | Claude Code (Anthropic), app de escritorio | Claude Opus 5.5 (`claude-opus-5-5`) | POO-08 | Corregir el trabajo práctico con las correcciones enviadas por el profesor. |
 | Noviembre 2026, en clase | Claude Code (Anthropic) | Claude Opus 5.5 (`claude-opus-5-5`) | POO-08 / POO-09 | Integración con otras APIs usando WebClient: portal al mundo de Ceci, flechazos con la regla de disparo de otra API Minecraft y consulta de restful-api.dev; documentación OpenAPI con springdoc; logs de integración con Log4j2. |
 | 2026-11-19 al 2026-11-21 | Claude Code (Anthropic), app de escritorio | Claude Opus 5.5 (`claude-opus-5-5`) | POO-09 | Cerrar las observaciones de la corrección de POO-08 (reglas y excepciones fuera del dominio, ortografía); leer las reglas y el OpenAPI de Cecilia y Sol; publicar la regla mecha corta; conectar las tres por Tailscale; clientes de A2 y A3, escenario guardado, colección de Insomnia y documentación. |
-| 2026-11-22 al 2026-11-24 | Claude Code (Anthropic), app de escritorio | Claude Opus 5.5 (`claude-opus-5-5`) | POO-09 | Diagramas de secuencia del escenario, PDF de entrega, prueba con los servicios reales de Cecilia y Sol |
+| 2026-11-22 al 2026-11-24 | Claude Code (Anthropic), app de escritorio | Claude Opus 5.5 (`claude-opus-5-5`) | POO-09 | Diagramas de secuencia del escenario, PDF de entrega, prueba con los servicios reales de Cecilia y Sol. |
 
 ## Resumen de prompts — sesión del 2026-11-22 al 2026-11-24 (Claude Code, Claude Opus 5.5)
 
